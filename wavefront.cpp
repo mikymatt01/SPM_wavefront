@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
             M[i * N + i + k] = wavefrontElement(M, i, i + k, k, N);
     auto end = std::chrono::high_resolution_clock::now();
 
-    // printMatrix(M, N);
     std::cout << "time: " << end - start << std::endl;
     std::cout << "end execution" << std::endl;
     return 0;
