@@ -19,7 +19,7 @@ double wavefrontElement(std::vector<double> M, uint64_t i, uint64_t j, uint64_t 
     double res = 0.0;
     for (uint64_t t = 0; t < k; ++t)
         res += M[i * N + i + t] * M[(j - t) * N + j];
-    return res;
+    return cbrt(res);
 }
 
 int main(int argc, char *argv[])

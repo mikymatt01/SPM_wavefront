@@ -48,7 +48,7 @@ struct WorkerM : ff_monode_t<task_ki, float>
         double res = 0.0;
         for (uint64_t t = 0; t < k; ++t)
             res += M[i * N + i + t] * M[(j - t) * N + j];
-        return res;
+        return cbrt(res);
     }
 
     float *svc(task_ki *task)
