@@ -15,19 +15,10 @@ seq: wavefront.cpp
 ff: wavefront_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp $(LIBS)
 
-ff_v2: wavefront_ff_v2.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff_v2 wavefront_ff_v2.cpp $(LIBS)
-
-ff_v3: wavefront_ff_v3.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff_v3 wavefront_ff_v3.cpp $(LIBS)
-
-ff_v4: wavefront_ff_v4.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff_v4 wavefront_ff_v4.cpp $(LIBS)
-
 mpi: wavefront_mpi.cpp
 	$(MPICXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_mpi wavefront_mpi.cpp $(LIBS)
 
-all: seq ff ff_v2 ff_v3 ff_v4 mpi
+all: seq ff mpi
 
 clean: 
 	-rm -fr *.o *~
