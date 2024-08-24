@@ -36,16 +36,6 @@ void printMatrix(std::vector<double> M, uint64_t N)
     }
 }
 
-double wavefrontElement(std::vector<double> M, uint64_t i, uint64_t j, uint64_t k, uint64_t N)
-{
-    double res = 0.0;
-    std::vector<double> a;
-    std::vector<double> b;
-    for (uint64_t t = 0; t < k; ++t)
-        res += M[i * N + i + t] * M[(j - t) * N + j];
-    return cbrt(res);
-}
-
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -79,14 +69,23 @@ int main(int argc, char *argv[])
 
         for (uint64_t i = 0; i + k < N; i++)
             if (i >= displs[myrank] && i < displs[myrank] + counts[myrank])
-                values.push_back(wavefrontElement(M, i, i + k, k, N));
+            {
+                double value = 0.0;
+                for (uint64_t t = 0; t < k; ++t)
+                    value += M[i * N + i + t] * M[(i + k) * N + (i + k) - t];
+                value = cbrt(value);
+                values.push_back(value);
+            }
 
         MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
                        global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
                        MPI_COMM_WORLD);
 
         for (uint64_t i = 0; i + k < N; i += 1)
+        {
             M[i * N + i + k] = global_values[i];
+            M[(i + k) * N + i] = global_values[i];
+        }
     }
     auto end = std::chrono::high_resolution_clock::now();
 

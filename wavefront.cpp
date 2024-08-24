@@ -2,7 +2,6 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
-#include <ff/utils.hpp>
 
 void printMatrix(std::vector<double> M, uint64_t N)
 {
@@ -12,14 +11,6 @@ void printMatrix(std::vector<double> M, uint64_t N)
             std::cout << std::ceil(M[i * N + j] * 100) / 100 << "\t";
         std::cout << std::endl;
     }
-}
-
-double wavefrontElement(std::vector<double> M, uint64_t i, uint64_t j, uint64_t k, uint64_t N)
-{
-    double res = 0.0;
-    for (uint64_t t = 0; t < k; ++t)
-        res += M[i * N + i + t] * M[(j - t) * N + j];
-    return cbrt(res);
 }
 
 int main(int argc, char *argv[])
@@ -36,11 +27,20 @@ int main(int argc, char *argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
     for (uint64_t k = 1; k < N; k++)
-        for (uint64_t i = 0; i + k < N; i++)
-            M[i * N + i + k] = wavefrontElement(M, i, i + k, k, N);
+        for (uint64_t i = 0; i < N - k; i++)
+        {
+            double res = 0.0;
+            for (uint64_t t = 0; t < k; ++t)
+                res += M[i * N + i + t] * M[(i + k) * N + (i + k) - t];
+            res = cbrt(res);
+            M[i * N + i + k] = res;
+            M[(i + k) * N + i] = res;
+        }
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "time: " << end - start << std::endl;
+    // printMatrix(M, N);
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    std::cout << "time: " << duration.count() << std::endl;
     std::cout << "end execution" << std::endl;
     return 0;
 }
