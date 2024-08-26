@@ -9,16 +9,16 @@ TARGET             = $(SOURCES:.cpp=)
 
 .PHONY: all clean cleanall 
 
-seq: wavefront.cpp
+sequential: wavefront.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront wavefront.cpp $(LIBS)
 
-ff: wavefront_ff.cpp
+fastflow: wavefront_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp $(LIBS)
 
 mpi: wavefront_mpi.cpp
 	$(MPICXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_mpi wavefront_mpi.cpp $(LIBS)
 
-all: seq ff mpi
+all: sequential fastflow mpi
 
 clean: 
 	-rm -fr *.o *~

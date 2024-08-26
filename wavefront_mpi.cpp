@@ -26,12 +26,12 @@ void divide_job_into_parts(int number, std::vector<int> &displs, std::vector<int
     }
 }
 
-void printMatrix(std::vector<double> M, uint64_t N)
+void printMatrix(std::vector<double> M, uint64_t n)
 {
-    for (uint64_t i = 0; i < N; ++i)
+    for (int i = 0; i < n; ++i)
     {
-        for (uint64_t j = 0; j < N; j++)
-            std::cout << std::ceil(M[i * N + j] * 100) / 100 << "\t";
+        for (int j = 0; j < n; j++)
+            std::cout << std::ceil(M[i * n + j] * 100) / 100 << "\t";
         std::cout << std::endl;
     }
 }
@@ -53,26 +53,26 @@ int main(int argc, char *argv[])
     std::vector<int> counts(n_processes, 0);
     std::vector<int> displs(n_processes, 0);
 
-    uint64_t N = atoi(argv[1]);
-    std::vector<double> M(N * N, 1);
+    int n = atoi(argv[1]);
+    std::vector<double> M(n * n, 1);
 
-    for (uint64_t i = 0; i < N; i++)
-        M[i * N + i] = static_cast<double>(i + 1) / N;
+    for (int m = 0; m < n; m++)
+        M[m * n + m] = static_cast<double>(m + 1) / n;
 
     auto start = std::chrono::high_resolution_clock::now();
-    for (uint64_t k = 1; k < N; k++)
+    for (int k = 1; k < n; k++)
     {
         std::vector<double> values;
-        std::vector<double> global_values(N - k + 1);
+        std::vector<double> global_values(n - k + 1);
 
-        divide_job_into_parts(N - k, displs, counts, n_processes);
+        divide_job_into_parts(n - k, displs, counts, n_processes);
 
-        for (uint64_t i = 0; i + k < N; i++)
+        for (int i = 0; i + k < n; i++)
             if (i >= displs[myrank] && i < displs[myrank] + counts[myrank])
             {
                 double value = 0.0;
-                for (uint64_t t = 0; t < k; ++t)
-                    value += M[i * N + i + t] * M[(i + k) * N + (i + k) - t];
+                for (int t = 0; t < k; ++t)
+                    value += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
                 value = cbrt(value);
                 values.push_back(value);
             }
@@ -81,10 +81,10 @@ int main(int argc, char *argv[])
                        global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
                        MPI_COMM_WORLD);
 
-        for (uint64_t i = 0; i + k < N; i += 1)
+        for (int i = 0; i + k < n; i += 1)
         {
-            M[i * N + i + k] = global_values[i];
-            M[(i + k) * N + i] = global_values[i];
+            M[i * n + i + k] = global_values[i];
+            M[(i + k) * n + i] = global_values[i];
         }
     }
     auto end = std::chrono::high_resolution_clock::now();
