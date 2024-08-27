@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cout << "./" << argv[0] << " " << argv[1] << std::endl;
+        std::cout << "./" << argv[0] << " <n>" << std::endl;
         return -1;
     }
 
@@ -54,8 +54,7 @@ int main(int argc, char *argv[])
     // end to track the execution time
     auto end = std::chrono::high_resolution_clock::now();
 
-    // printMatrix(M, n);
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "time: " << duration.count() << std::endl;
     std::cout << "end execution" << std::endl;
     return 0;

@@ -26,7 +26,7 @@ void divide_job_into_parts(int number, std::vector<int> &displs, std::vector<int
     }
 }
 
-void printMatrix(std::vector<double> M, uint64_t n)
+void printMatrix(std::vector<double> M, int n)
 {
     for (int i = 0; i < n; ++i)
     {
@@ -39,7 +39,10 @@ void printMatrix(std::vector<double> M, uint64_t n)
 int main(int argc, char *argv[])
 {
     if (argc < 2)
+    {
+        std::cout << "./" << argv[0] << " <n>" << std::endl;
         return 1;
+    }
     std::cout << "start execution" << std::endl;
 
     MPI_Init(&argc, &argv);
@@ -56,10 +59,11 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
-    auto start = std::chrono::high_resolution_clock::now();
     for (int k = 1; k < n; k++)
     {
         std::vector<double> values;
@@ -67,21 +71,20 @@ int main(int argc, char *argv[])
 
         divide_job_into_parts(n - k, displs, counts, n_processes);
 
-        for (int i = 0; i + k < n; i++)
-            if (i >= displs[myrank] && i < displs[myrank] + counts[myrank])
-            {
-                double value = 0.0;
-                for (int t = 0; t < k; ++t)
-                    value += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
-                value = cbrt(value);
-                values.push_back(value);
-            }
+        for (int i = displs[myrank]; i < displs[myrank] + counts[myrank]; i++)
+        {
+            double value = 0.0;
+            for (int t = 0; t < k; ++t)
+                value += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
+            value = cbrt(value);
+            values.push_back(value);
+        }
 
         MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
                        global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
                        MPI_COMM_WORLD);
 
-        for (int i = 0; i + k < n; i += 1)
+        for (int i = 0; i < n - k; i += 1)
         {
             M[i * n + i + k] = global_values[i];
             M[(i + k) * n + i] = global_values[i];
@@ -91,7 +94,8 @@ int main(int argc, char *argv[])
 
     if (!myrank)
     {
-        printf("time: %d\n", end - start);
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << "time: " << duration.count() << std::endl;
         std::cout << "end execution" << std::endl;
     }
 

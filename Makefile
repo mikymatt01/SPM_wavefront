@@ -16,7 +16,7 @@ fastflow: wavefront_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp $(LIBS)
 
 mpi: wavefront_mpi.cpp
-	$(MPICXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_mpi wavefront_mpi.cpp $(LIBS)
+	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
 
 all: sequential fastflow mpi
 

@@ -19,13 +19,16 @@ void printMatrix(std::vector<double> M, uint64_t n)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-        return 1;
+    if (argc < 3)
+    {
+        std::cout << "./" << argv[0] << " <n> <nw>" << std::endl;
+        return -1;
+    }
     std::cout << "start execution" << std::endl;
 
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
-    ssize_t nworkers = ff_numCores();
+    ssize_t nworkers = atoi(argv[2]); // ff_numCores();
 
     // Initialize major diagonal elements
     for (int m = 0; m < n; m++)
@@ -45,7 +48,7 @@ int main(int argc, char *argv[])
             M[(i + k) * n + i] = res; }, nworkers);
     auto end = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "time: " << duration.count() << std::endl;
     std::cout << "end execution" << std::endl;
 
