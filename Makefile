@@ -1,19 +1,15 @@
 CXX                = g++ -std=c++20
-MPICXX             = mpicxx -std=c++20
 OPTFLAGS	   = -O3 -march=native -ffast-math
 CXXFLAGS          += -Wall 
 INCLUDES	   = -I. -I./ff
-LIBS               = 
-SOURCES            = $(wildcard *.cpp)
-TARGET             = $(SOURCES:.cpp=)
 
 .PHONY: all clean cleanall 
 
 sequential: wavefront.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront wavefront.cpp $(LIBS)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront wavefront.cpp
 
 fastflow: wavefront_ff.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp $(LIBS)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp
 
 mpi: wavefront_mpi.cpp
 	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
@@ -21,9 +17,4 @@ mpi: wavefront_mpi.cpp
 all: sequential fastflow mpi
 
 clean: 
-	-rm -fr *.o *~
-cleanall: clean
-	-rm -fr $(TARGET)
-
-
-
+	-rm -fr *.o wavefront wavefront_ff wavefront_mpi
