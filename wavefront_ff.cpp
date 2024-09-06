@@ -31,11 +31,10 @@ int main(int argc, char *argv[])
     ssize_t nworkers = atoi(argv[2]); // ff_numCores();
 
     auto start = std::chrono::high_resolution_clock::now();
-    // Initialize major diagonal elements
+
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
-    // ParallelFor object from FastFlow
     ParallelFor pf;
     for (int k = 1; k < n; k++)
         pf.parallel_for(0, n - k, 1, [&](int i)
