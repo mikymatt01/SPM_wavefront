@@ -8,6 +8,7 @@ typedef struct
     bool is_diag;
 } triangle;
 
+int m_val = 0;
 inline void init_matrix(std::vector<double> &M, int n)
 {
     int value = 0;
@@ -40,8 +41,7 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
         {
             for (int index = start_index; index < size_side + start_index; ++index)
             {
-                // std::cout << M[index] << "\t";
-                M[index] = 0;
+                M[index] = m_val;
             }
             std::cout << std::endl;
         }
@@ -50,10 +50,9 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
     {
         for (int start_index = t.start_index, size_side = t.size_side; size_side > 0; start_index -= n, --size_side)
         {
-            for (int index = start_index; index < size_side + start_index; ++index)
+            for (int index = start_index; index < size_side + start_index && index < std::ceil((float)start_index / n) * n; ++index)
             {
-                // std::cout << M[index] << "\t";
-                M[index] = 0;
+                M[index] = m_val;
             }
             std::cout << std::endl;
         }
@@ -63,6 +62,11 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
 int min(int a, int b)
 {
     return a > b ? b : a;
+}
+
+int max(int a, int b)
+{
+    return a > b ? a : b;
 }
 
 void printTriangle(triangle t)
@@ -82,7 +86,7 @@ inline std::vector<triangle *> divide_upper_matrix_into_triangles(std::vector<do
     {
         d = n - i;
         int start_index = i;
-        int n_triangles_per_d = d > nw ? nw : d; // check this behaviour
+        int n_triangles_per_d = d > nw ? nw : d;
         int quotient = d / nw;
         int remainder = d - nw * quotient;
 
@@ -99,16 +103,19 @@ inline std::vector<triangle *> divide_upper_matrix_into_triangles(std::vector<do
             n_triangles++;
 
             if (i_triangle == 0)
-                i += triangles[i_triangle]->size_side;
+                i += triangles[n_triangles - 1]->size_side;
             if (i_triangle == 1)
-                i += triangles[i_triangle]->size_side == triangles[i_triangle - 1]->size_side ? 1 : 0;
+                i += triangles[n_triangles - 1]->size_side == triangles[n_triangles - 2]->size_side ? 1 : 0;
         }
 
         int n_lower_triangles = n_triangles;
         for (int i_triangle = n_lower_triangles - n_triangles_per_d; i_triangle < n_lower_triangles - 1; ++i_triangle)
         {
             triangle *a = (triangle *)malloc(sizeof(triangle));
-            a->size_side = min(triangles[i_triangle]->size_side, triangles[i_triangle + 1]->size_side);
+            if (i_triangle + 1 == n_lower_triangles - 1)
+                a->size_side = max(triangles[i_triangle]->size_side, triangles[i_triangle + 1]->size_side);
+            else
+                a->size_side = min(triangles[i_triangle]->size_side, triangles[i_triangle + 1]->size_side);
             a->start_index = triangles[i_triangle + 1]->start_index - n;
             a->is_diag = false;
 
@@ -142,9 +149,10 @@ int main(int argc, char *argv[])
     {
         printTriangle(*triangles[i]);
         iterate_on_matrix_by_triangle(M, *triangles[i], n);
-        printMatrix(M, n);
+        // printMatrix(M, n);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
     }
+    std::cout << "triangles: " << triangles.size() << std::endl;
 }
