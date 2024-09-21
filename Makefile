@@ -14,6 +14,9 @@ fastflow: wavefront_ff.cpp
 mpi: wavefront_mpi.cpp
 	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
 
+triangles: triangles.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o triangles triangles.cpp
+
 all: sequential fastflow mpi
 
 clean: 
