@@ -13,6 +13,13 @@ void printMatrix(std::vector<double> M, uint64_t n)
     }
 }
 
+void printArray(std::vector<float> x, int n)
+{
+    for (int i = 0; i < n; i++)
+        std::cout << x[i] << " ";
+    std::cout << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -38,11 +45,22 @@ int main(int argc, char *argv[])
         // for each diagonal element i
         for (uint64_t i = 0; i < n - k; i++)
         {
+            std::vector<float> x;
+            std::vector<float> y;
             // compute cubic root of the dot product between two arrays
             double res = 0.0;
             for (uint64_t t = 0; t < k; ++t)
+            {
+                x.push_back(M[i * n + i + t]);
+                y.push_back(M[(i + k) * n + (i + k) - t]);
                 res += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
+            }
             res = cbrt(res);
+
+            /*printArray(x, x.size());
+            printArray(y, y.size());
+            std::cout << std::endl
+                      << std::endl;*/
 
             // assign the result to the corresponding diagonal element e^k_{i,j}
             M[i * n + i + k] = res;
@@ -57,5 +75,6 @@ int main(int argc, char *argv[])
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "time: " << duration.count() << std::endl;
     std::cout << "end execution" << std::endl;
+    std::cout << M[n - 1] << std::endl;
     return 0;
 }

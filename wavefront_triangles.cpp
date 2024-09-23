@@ -81,7 +81,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
             if (i_triangle == 0)
                 a->size_side = min(triangles_straight[i_triangle]->size_side, triangles_straight[i_triangle + 1]->size_side);
             else
-                a->size_side = triangles_straight[i_triangle - 1]->size_side;
+                a->size_side = triangles_reversed[i_triangle - 1]->size_side;
 
             a->start_index = triangles_straight[i_triangle + 1]->start_index - n;
             a->is_diag = false;
@@ -122,8 +122,6 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
         {
             for (int j = t.start_index + i; j < (t.size_side * n + t.size_side) + t.start_index - (n * i); j += n + 1)
             {
-                std::vector<float> x;
-                std::vector<float> y;
                 int row = std::floor((float)j / n);
                 int col = j % n;
                 int start_row = n * row + row;
@@ -140,14 +138,9 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
                 }
             }
         }
-        auto right_triangle_end = std::chrono::high_resolution_clock::now();
-        auto duration_right_triangle = std::chrono::duration_cast<std::chrono::milliseconds>(right_triangle_end - right_triangle_start);
-        // printTriangle(t);
-        // std::cout << "time right triangle compute: " << duration_right_triangle.count() << std::endl;
     }
     else
     {
-        auto reversed_triangle_start = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < t.size_side; i++)
         {
             for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
@@ -168,12 +161,7 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
                 }
             }
         }
-        auto reversed_triangle_end = std::chrono::high_resolution_clock::now();
-        auto duration_resersed_triangle = std::chrono::duration_cast<std::chrono::milliseconds>(reversed_triangle_end - reversed_triangle_start);
-        // printTriangle(t);
-        // std::cout << "time reversed triangle compute:: " << duration_resersed_triangle.count() << std::endl;
     }
-    std::cout << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -188,17 +176,12 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
     ssize_t nworkers = atoi(argv[2]); // ff_numCores();
-    // ff::ParallelFor pf(nworkers);
     auto start_compute = std::chrono::high_resolution_clock::now();
 
-    auto start_divide = std::chrono::high_resolution_clock::now();
     const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
-    auto end_divide = std::chrono::high_resolution_clock::now();
 
-    auto start_init = std::chrono::high_resolution_clock::now();
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
-    auto end_init = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < triangles.size(); i++)
     {
@@ -206,18 +189,13 @@ int main(int argc, char *argv[])
         {
             iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
         }
-        /*pf.parallel_for(0, triangles[i].size(), 1, [&](const long j)
-                        { iterate_on_matrix_by_triangle(M, *triangles[i][j], n); }, nworkers);*/
     }
     auto end_compute = std::chrono::high_resolution_clock::now();
-
-    auto duration_divide = std::chrono::duration_cast<std::chrono::milliseconds>(end_divide - start_divide);
-    auto duration_init = std::chrono::duration_cast<std::chrono::milliseconds>(end_init - start_init);
     auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
-    // std::cout << "time divide: " << duration_divide.count() << std::endl;
-    // std::cout << "time init: " << duration_init.count() << std::endl;
+
     std::cout << "time compute: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
     std::cout << M[n - 1] << std::endl;
+    std::cout << std::endl;
     return 0;
 }

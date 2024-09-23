@@ -37,24 +37,22 @@ inline void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, in
     if (t.is_diag)
     {
 
-        for (int start_index = t.start_index, size_side = t.size_side; size_side > 0; start_index += n + 1, --size_side)
+        for (int i = 0; i < t.size_side; i++)
         {
-            for (int index = start_index; index < size_side + start_index; ++index)
+            for (int j = t.start_index + i; j < (t.size_side * n + t.size_side) + t.start_index - (n * i); j += n + 1)
             {
-                M[index] = m_val;
+                M[j] = m_val;
             }
-            std::cout << std::endl;
         }
     }
     else
     {
-        for (int start_index = t.start_index, size_side = t.size_side; size_side > 0; start_index -= n, --size_side)
+        for (int i = 0; i < t.size_side; i++)
         {
-            for (int index = start_index; index < size_side + start_index && index < std::ceil((float)start_index / n) * n; ++index)
+            for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
             {
-                M[index] = m_val;
+                M[j] = m_val;
             }
-            std::cout << std::endl;
         }
     }
 }
@@ -77,20 +75,22 @@ void printTriangle(triangle t)
     std::cout << std::endl;
 }
 
-inline std::vector<triangle *> divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
+inline std::vector<std::vector<triangle *>>
+divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
 {
-    std::vector<triangle *> triangles;
-    int n_triangles = 0;
-    int d = n;
+    std::vector<std::vector<triangle *>> triangles;
+    std::vector<triangle *> triangles_straight;
+    std::vector<triangle *> triangles_reversed;
+
     for (int i = 0; i < n;)
     {
-        d = n - i;
+        int d = n - i;
         int start_index = i;
-        int n_triangles_per_d = d > nw ? nw : d;
+        int n_straight_triangles = d > nw ? nw : d;
         int quotient = d / nw;
         int remainder = d - nw * quotient;
 
-        for (int i_triangle = 0; i_triangle < n_triangles_per_d; i_triangle++)
+        for (int i_triangle = 0; i_triangle < n_straight_triangles; i_triangle++)
         {
             triangle *a = (triangle *)malloc(sizeof(triangle));
             a->start_index = start_index;
@@ -99,29 +99,32 @@ inline std::vector<triangle *> divide_upper_matrix_into_triangles(std::vector<do
 
             remainder--;
             start_index = a->size_side * n + a->size_side + start_index;
-            triangles.push_back(a);
-            n_triangles++;
+            triangles_straight.push_back(a);
 
             if (i_triangle == 0)
-                i += triangles[n_triangles - 1]->size_side;
+                i += triangles_straight[0]->size_side;
             if (i_triangle == 1)
-                i += triangles[n_triangles - 1]->size_side == triangles[n_triangles - 2]->size_side ? 1 : 0;
+                i += triangles_straight[1]->size_side == triangles_straight[0]->size_side ? 1 : 0;
         }
 
-        int n_lower_triangles = n_triangles;
-        for (int i_triangle = n_lower_triangles - n_triangles_per_d; i_triangle < n_lower_triangles - 1; ++i_triangle)
+        for (int i_triangle = triangles_straight.size() - n_straight_triangles; i_triangle < triangles_straight.size() - 1; ++i_triangle)
         {
             triangle *a = (triangle *)malloc(sizeof(triangle));
-            if (i_triangle + 1 == n_lower_triangles - 1)
-                a->size_side = max(triangles[i_triangle]->size_side, triangles[i_triangle + 1]->size_side);
+            if (i_triangle + 1 == triangles_straight.size() - 1)
+                a->size_side = max(triangles_straight[i_triangle]->size_side, triangles_straight[i_triangle + 1]->size_side);
             else
-                a->size_side = min(triangles[i_triangle]->size_side, triangles[i_triangle + 1]->size_side);
-            a->start_index = triangles[i_triangle + 1]->start_index - n;
+                a->size_side = min(triangles_straight[i_triangle]->size_side, triangles_straight[i_triangle + 1]->size_side);
+            a->start_index = triangles_straight[i_triangle + 1]->start_index - n;
             a->is_diag = false;
 
-            triangles.push_back(a);
-            n_triangles++;
+            triangles_reversed.push_back(a);
         }
+
+        triangles.push_back(triangles_straight);
+        triangles.push_back(triangles_reversed);
+
+        triangles_straight.clear();
+        triangles_reversed.clear();
     }
 
     return triangles;
@@ -140,19 +143,20 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     int nw = atoi(argv[2]);
     std::vector<double> M(n * n, 1);
-    std::vector<triangle *> triangles;
+    std::vector<std::vector<triangle *>> triangles;
 
     init_matrix(M, n);
     triangles = divide_upper_matrix_into_triangles(M, n, nw);
-    std::cout << triangles.size();
     for (int i = 0; i < triangles.size(); i++)
     {
-        printTriangle(*triangles[i]);
-        iterate_on_matrix_by_triangle(M, *triangles[i], n);
-        // printMatrix(M, n);
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
+        for (int j = 0; j < triangles[i].size(); j++)
+        {
+            printTriangle(*triangles[i][j]);
+            iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            printMatrix(M, n);
+            // std::cout << (triangles[i]->size_side * triangles[i]->size_side) / 2 << std::endl;
+            std::cout << std::endl;
+        }
     }
     std::cout << "triangles: " << triangles.size() << std::endl;
 }

@@ -11,11 +11,17 @@ sequential: wavefront.cpp
 fastflow: wavefront_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp
 
+w_triangles: wavefront_triangles.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles wavefront_triangles.cpp
+
+map: wavefront_map.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_map wavefront_map.cpp
+
 mpi: wavefront_mpi.cpp
 	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
 
-triangles: triangles.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o triangles triangles.cpp
+squares: squares.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o squares squares.cpp
 
 all: sequential fastflow mpi
 
