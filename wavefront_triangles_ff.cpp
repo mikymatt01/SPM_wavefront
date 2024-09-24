@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <chrono>
+#include <ff/parallel_for.hpp>
 
 void printMatrix(std::vector<double> M, int n)
 {
@@ -50,7 +51,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
     std::vector<triangle *> triangles_straight;
     std::vector<triangle *> triangles_reversed;
 
-    for (int i = 1; i < n;)
+    for (int i = 0; i < n;)
     {
         int d = n - i;
         int start_index = i;
@@ -122,20 +123,24 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
             int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
             for (int j = t.start_index + i; j < end_cicle; j += n + 1)
             {
-                // number of cicles: (t.size_side * t.size_side) / 2
                 int row = std::floor((float)j / n);
                 int col = j % n;
-                double res = 0.0;
-                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-                    res += M[start_row] * M[start_col];
-                res = cbrt(res);
-                M[j] = res;
-                M[col * n + row] = res;
+                int start_row = n * row + row;
+                int start_col = n * (j - start_row) + j;
+                if (start_row != j)
+                {
+                    double res = 0.0;
+                    for (; start_row < j && start_col > j; ++start_row, --start_col)
+                        res += M[start_row] * M[start_col];
+                    res = cbrt(res);
+
+                    M[j] = res;
+                    M[col * n + row] = res;
+                }
             }
         }
     }
-
-    if (!t.is_diag)
+    else
     {
         for (int i = 0; i < t.size_side; i++)
         {
@@ -143,13 +148,18 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
             {
                 int row = std::floor((float)j / n);
                 int col = j % n;
-                double res = 0.0;
-                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-                    res += M[start_row] * M[start_col];
-                res = cbrt(res);
+                int start_row = n * row + row;
+                int start_col = n * (j - start_row) + j;
+                if (start_row != j)
+                {
+                    double res = 0.0;
+                    for (; start_row < j && start_col > j; ++start_row, --start_col)
+                        res += M[start_row] * M[start_col];
+                    res = cbrt(res);
 
-                M[j] = res;
-                M[col * n + row] = res;
+                    M[j] = res;
+                    M[col * n + row] = res;
+                }
             }
         }
     }
@@ -167,23 +177,25 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
     ssize_t nworkers = atoi(argv[2]); // ff_numCores();
+    ff::ParallelFor pf(nworkers);
+    auto start_divide = std::chrono::high_resolution_clock::now();
+    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
+    auto end_divide = std::chrono::high_resolution_clock::now();
 
     auto start_compute = std::chrono::high_resolution_clock::now();
-    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
-
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
     for (int i = 0; i < (int)triangles.size(); i++)
     {
-        for (int j = 0; j < (int)triangles[i].size(); j++)
-        {
-            iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
-        }
+        pf.parallel_for(0, (int)triangles[i].size(), 1, [&](const long j)
+                        { iterate_on_matrix_by_triangle(M, *triangles[i][j], n); });
     }
     auto end_compute = std::chrono::high_resolution_clock::now();
-    auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
+    auto duration_divide = std::chrono::duration_cast<std::chrono::milliseconds>(end_divide - start_divide);
+    auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_divide);
 
+    std::cout << "time divide: " << duration_divide.count() << std::endl;
     std::cout << "time compute: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
     std::cout << M[n - 1] << std::endl;

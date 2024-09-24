@@ -30,37 +30,29 @@ int main(int argc, char *argv[])
 
     std::cout << "start execution" << std::endl;
 
-    uint64_t n = atoi(argv[1]);
+    int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
 
     // start to track the execution time
     auto start = std::chrono::high_resolution_clock::now();
 
     // initialize the major diagonal e^0_{m,m} with (m+1)/n
-    for (uint64_t m = 0; m < n; m++)
+    for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
     // for each diagonal k in the matrix
-    for (uint64_t k = 1; k < n; k++)
+    for (int k = 1; k < n; k++)
+    {
         // for each diagonal element i
-        for (uint64_t i = 0; i < n - k; i++)
+        for (int i = 0; i < n - k; i++)
         {
-            std::vector<float> x;
-            std::vector<float> y;
             // compute cubic root of the dot product between two arrays
             double res = 0.0;
-            for (uint64_t t = 0; t < k; ++t)
+            for (int t = 0; t < k; ++t)
             {
-                x.push_back(M[i * n + i + t]);
-                y.push_back(M[(i + k) * n + (i + k) - t]);
                 res += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
             }
             res = cbrt(res);
-
-            /*printArray(x, x.size());
-            printArray(y, y.size());
-            std::cout << std::endl
-                      << std::endl;*/
 
             // assign the result to the corresponding diagonal element e^k_{i,j}
             M[i * n + i + k] = res;
@@ -68,6 +60,7 @@ int main(int argc, char *argv[])
             // assign the result at the e^k_{j,i} to create the symmetric matrix for performance improvement
             M[(i + k) * n + i] = res;
         }
+    }
 
     // end to track the execution time
     auto end = std::chrono::high_resolution_clock::now();
