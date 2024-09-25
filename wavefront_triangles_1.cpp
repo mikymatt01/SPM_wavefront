@@ -118,56 +118,43 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
 {
     if (t.is_diag)
     {
-        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
-        int n_s = t.size_side;
-        int n_d = t.size_side;
-        int j = t.start_index;
-        int step = 0;
-        for (int i_t = 0; i_t < n_t; i_t++)
+        for (int i = 0; i < t.size_side; i++)
         {
-            int row = std::floor((float)j / n);
-            int col = j % n;
-            double res = 0.0;
-            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+            int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
+            for (int j = t.start_index + i; j < end_cicle; j += n + 1)
             {
-                res += M[start_row] * M[start_col];
+                int row = std::floor((float)j / n);
+                int col = j % n;
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                {
+                    res += M[start_row] * M[start_col];
+                }
+                res = cbrt(res);
+                M[j] = res;
+                M[col * n + row] = res;
             }
-            res = cbrt(res);
-            M[j] = res;
-            M[col * n + row] = res;
-
-            step = std::floor(float(i_t + 1) / n_s) == 1 ? step + 1 : step;
-            n_d = std::floor(float(i_t + 1) / n_s) == 1 ? n_d - 1 : n_d;
-            j = std::floor(float(i_t + 1) / n_s) == 1 ? t.start_index + step : j + n + 1;
-            n_s = std::floor(float(i_t + 1) / n_s) == 1 ? n_s + n_d : n_s;
         }
     }
 
     if (!t.is_diag)
     {
-        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
-        int i_d = 1;
-        int d = 1;
-        int j = t.start_index;
-        int step = 0;
-        for (int i_t = 0; i_t < n_t && j < std::ceil((float)t.start_index / n) * n; i_t++)
+        for (int i = 0; i < t.size_side; i++)
         {
-            int row = std::floor((float)j / n);
-            int col = j % n;
-            double res = 0.0;
-            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+            for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
             {
-                res += M[start_row] * M[start_col];
-            }
-            res = cbrt(res);
-            M[j] = res;
-            M[col * n + row] = res;
+                int row = std::floor((float)j / n);
+                int col = j % n;
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                {
+                    res += M[start_row] * M[start_col];
+                }
+                res = cbrt(res);
 
-            i_d -= 1;
-            step = i_d == 0 ? step + 1 : step;
-            j = i_d == 0 ? t.start_index - (n * step) : j + n + 1;
-            d = i_d == 0 ? d + 1 : d;
-            i_d = i_d == 0 ? d : i_d;
+                M[j] = res;
+                M[col * n + row] = res;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 CXX                = g++ -std=c++20
-OPTFLAGS	   = -O2 -march=native -ffast-math -ftree-vectorize -fopt-info-vec-missed
+OPTFLAGS	   = -O3 -march=native -ffast-math -ftree-vectorize -fopt-info-vec-missed
 CXXFLAGS          += -Wall 
 INCLUDES	   = -I. -I./ff
 
@@ -9,6 +9,7 @@ INCLUDES	   = -I. -I./ff
 sequential: wavefront.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront wavefront.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles wavefront_triangles.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_1 wavefront_triangles_1.cpp
 
 fastflow: wavefront_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp
