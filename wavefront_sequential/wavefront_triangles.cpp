@@ -2,7 +2,6 @@
 #include <vector>
 #include <cmath>
 #include <chrono>
-#include <ff/parallel_for.hpp>
 
 void printMatrix(std::vector<double> M, int n)
 {
@@ -51,7 +50,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
     std::vector<triangle *> triangles_straight;
     std::vector<triangle *> triangles_reversed;
 
-    for (int i = 0; i < n;)
+    for (int i = 1; i < n;)
     {
         int d = n - i;
         int start_index = i;
@@ -102,7 +101,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
 
 void printTriangle(triangle t)
 {
-    std::cout << "start_row: " << t.start_index << std::endl;
+    std::cout << "start_index: " << t.start_index << std::endl;
     std::cout << "size_side: " << t.size_side << std::endl;
     std::cout << "is_diag: " << t.is_diag << std::endl;
 }
@@ -111,7 +110,8 @@ void printArray(std::vector<float> x, int n)
 {
     for (int i = 0; i < n; i++)
         std::cout << x[i] << " ";
-    std::cout << std::endl;
+    if (n > 0)
+        std::cout << std::endl;
 }
 
 void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
@@ -125,22 +125,19 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
             {
                 int row = std::floor((float)j / n);
                 int col = j % n;
-                int start_row = n * row + row;
-                int start_col = n * (j - start_row) + j;
-                if (start_row != j)
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
                 {
-                    double res = 0.0;
-                    for (; start_row < j && start_col > j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
-
-                    M[j] = res;
-                    M[col * n + row] = res;
+                    res += M[start_row] * M[start_col];
                 }
+                res = cbrt(res);
+                M[j] = res;
+                M[col * n + row] = res;
             }
         }
     }
-    else
+
+    if (!t.is_diag)
     {
         for (int i = 0; i < t.size_side; i++)
         {
@@ -148,18 +145,15 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
             {
                 int row = std::floor((float)j / n);
                 int col = j % n;
-                int start_row = n * row + row;
-                int start_col = n * (j - start_row) + j;
-                if (start_row != j)
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
                 {
-                    double res = 0.0;
-                    for (; start_row < j && start_col > j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
-
-                    M[j] = res;
-                    M[col * n + row] = res;
+                    res += M[start_row] * M[start_col];
                 }
+                res = cbrt(res);
+
+                M[j] = res;
+                M[col * n + row] = res;
             }
         }
     }
@@ -177,25 +171,25 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
     ssize_t nworkers = atoi(argv[2]); // ff_numCores();
-    ff::ParallelFor pf(nworkers);
-    auto start_divide = std::chrono::high_resolution_clock::now();
-    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
-    auto end_divide = std::chrono::high_resolution_clock::now();
 
     auto start_compute = std::chrono::high_resolution_clock::now();
+    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
+
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
     for (int i = 0; i < (int)triangles.size(); i++)
     {
-        pf.parallel_for(0, (int)triangles[i].size(), 1, [&](const long j)
-                        { iterate_on_matrix_by_triangle(M, *triangles[i][j], n); });
+        for (int j = 0; j < (int)triangles[i].size(); j++)
+        {
+            iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            delete triangles[i][j];
+            triangles[i][j] = nullptr;
+        }
     }
     auto end_compute = std::chrono::high_resolution_clock::now();
-    auto duration_divide = std::chrono::duration_cast<std::chrono::milliseconds>(end_divide - start_divide);
-    auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_divide);
+    auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
 
-    std::cout << "time divide: " << duration_divide.count() << std::endl;
     std::cout << "time compute: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
     std::cout << M[n - 1] << std::endl;

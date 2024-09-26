@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     ssize_t nworkers = atoi(argv[2]); // ff_numCores();
 
     auto start_compute = std::chrono::high_resolution_clock::now();
-    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
+    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
             iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            delete triangles[i][j];
+            triangles[i][j] = nullptr;
         }
     }
     auto end_compute = std::chrono::high_resolution_clock::now();
