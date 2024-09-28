@@ -13,7 +13,7 @@ sequential:
 
 fastflow:
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff ./wavefront_fastflow/wavefront_ff.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_ff ./wavefront_fastflow/wavefront_triangles_ff.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_ff ./wavefront_fastflow/wavefront_triangles_ff.cpp -pthread
 
 mpi: wavefront_mpi.cpp
 	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi

@@ -4,6 +4,8 @@
 #include <chrono>
 #include <ff/ff.hpp>
 #include <ff/farm.hpp>
+#include <ff/parallel_for.hpp>
+#include <ff/map.hpp>
 
 using namespace ff;
 
@@ -41,7 +43,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
     std::vector<triangle *> triangles_straight;
     std::vector<triangle *> triangles_reversed;
 
-    for (int i = 0; i < n;)
+    for (int i = 1; i < n;)
     {
         int d = n - i;
         int start_index = i;
@@ -90,63 +92,13 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
     return triangles;
 }
 
-void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
-{
-    if (t.is_diag)
-    {
-        for (int i = 0; i < t.size_side; i++)
-        {
-            int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-            for (int j = t.start_index + i; j < end_cicle; j += n + 1)
-            {
-                int row = std::floor((float)j / n);
-                int col = j % n;
-                int start_row = n * row + row;
-                int start_col = n * (j - start_row) + j;
-                if (start_row != j)
-                {
-                    double res = 0.0;
-                    for (; start_row < j && start_col > j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
-
-                    M[j] = res;
-                    M[col * n + row] = res;
-                }
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < t.size_side; i++)
-        {
-            for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
-            {
-                int row = std::floor((float)j / n);
-                int col = j % n;
-                int start_row = n * row + row;
-                int start_col = n * (j - start_row) + j;
-                if (start_row != j)
-                {
-                    double res = 0.0;
-                    for (; start_row < j && start_col > j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
-
-                    M[j] = res;
-                    M[col * n + row] = res;
-                }
-            }
-        }
-    }
-}
-
 using task = std::pair<int, int>;
 
 struct Emitter : ff_monode_t<int, task>
 {
 
-    Emitter(const std::vector<std::vector<triangle *>> &_triangles, std::vector<double> &_M, int _n) : triangles(_triangles), M(_M), n(_n) {}
+    Emitter(const std::vector<std::vector<triangle *>> &_triangles, std::vector<double> &_M, int _n)
+        : triangles(_triangles), M(_M), n(_n) {}
 
     task *svc(int *feedback)
     {
@@ -184,21 +136,66 @@ struct Emitter : ff_monode_t<int, task>
     int i = 0;
 };
 
-struct Worker : ff::ff_node_t<task, int>
+struct Worker : ff_Map<task, int>
 {
-    Worker(int _n, std::vector<double> &_M, const std::vector<std::vector<triangle *>> &_triangles) : n(_n), M(_M), triangles(_triangles) {}
+    using map = ff_Map<task, int>;
+
+    Worker(int _n, std::vector<double> &_M, const std::vector<std::vector<triangle *>> &_triangles, int _nw)
+        : n(_n), M(_M), triangles(_triangles), nw(_nw) {}
 
     int *svc(task *task)
     {
         int i = task->first;
         int j = task->second;
-        iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+        triangle t = *triangles[i][j];
+        if (t.is_diag)
+        {
+
+            for (int i = 0; i < t.size_side; i++)
+            {
+                int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
+                map::parallel_for(t.start_index + i, end_cicle, n + 1, [&](const long j)
+                                  {
+                    int row = std::floor((float)j / n);
+                    int col = j % n;
+                    double res = 0.0;
+                    for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                    {
+                        res += M[start_row] * M[start_col];
+                    }
+                    res = cbrt(res);
+                    M[j] = res;
+                    M[col * n + row] = res; }, nw);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < t.size_side; i++)
+            {
+                map::parallel_for(t.start_index - (i * n), t.start_index + i + 1, n + 1, [&](const long j)
+                                  {
+                    if(j < std::ceil((float)t.start_index / n) * n) {
+                        int row = std::floor((float)j / n);
+                        int col = j % n;
+                        double res = 0.0;
+                        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                        {
+                            res += M[start_row] * M[start_col];
+                        }
+                        res = cbrt(res);
+
+                        M[j] = res;
+                        M[col * n + row] = res;} }, nw);
+            }
+        }
+
         delete task;
         ff_send_out(new int(1));
         return GO_ON;
     }
 
     int n;
+    int nw;
     std::vector<double> &M;
     const std::vector<std::vector<triangle *>> &triangles;
 };
@@ -214,26 +211,29 @@ int main(int argc, char *argv[])
 
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
-    ssize_t nworkers = atoi(argv[2]); // ff_numCores();
+    ssize_t nworkers = atoi(argv[2]);
 
     auto start_compute = std::chrono::high_resolution_clock::now();
 
-    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
+    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, 1);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
     Emitter emitter(triangles, M, n);
-    std::vector<std::unique_ptr<ff::ff_node>> workers;
-    for (int i = 0; i < nworkers; ++i)
-        workers.push_back(std::make_unique<Worker>(n, M, triangles));
-    ff::ff_Farm<int> farm(std::move(workers), emitter);
+    Worker worker(n, M, triangles, nworkers);
 
-    farm.remove_collector();
-    farm.wrap_around();
-    farm.set_scheduling_ondemand();
+    /*std::vector<std::unique_ptr<ff::ff_node>>
+        workers;
+    for (int i = 0; i < nworkers_farm; ++i)
+        workers.push_back(std::make_unique<Worker>(n, M, triangles, nworkers_map));
+    ff::ff_Farm<int> farm(std::move(workers), emitter);*/
 
-    if (farm.run_and_wait_end() < 0)
+    ff_Pipe<> pipe(emitter, worker);
+    pipe.wrap_around();
+    // farm.set_scheduling_ondemand();
+
+    if (pipe.run_and_wait_end() < 0)
     {
         std::cerr << "Error running the farm" << std::endl;
         return -1;
