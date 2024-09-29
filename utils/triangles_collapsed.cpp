@@ -17,14 +17,14 @@ struct Cell
 };
 
 int m_val = 0;
-inline void init_matrix(std::vector<Cell> &M, int n)
+inline void init_matrix(std::vector<double> &M, int n)
 {
     int value = 0;
     for (uint64_t i = 0; i < n; ++i)
     {
         for (uint64_t j = 0; j < n; j++)
         {
-            M[i * n + j].value = value;
+            M[i * n + j] = value;
             value++;
         }
     }
@@ -43,7 +43,7 @@ void printMatrix(std::vector<Cell> M, uint64_t n)
                 int j = i * n + i + k;
                 int row = std::floor((float)j / n);
                 int col = j % n;
-                printf("index: %llu, row: %d, column: %d, diag: %d\n", i * n + i + k, row, col, k);
+                printf("index: %llu, row: %d, column: %d\n", i * n + i + k, row, col);
             }
         }
     }
@@ -54,43 +54,52 @@ void iterate_on_matrix_by_triangle(std::vector<Cell> &M, triangle t, int n)
 {
     if (t.is_diag)
     {
-        for (int i = 0; i < t.size_side; i++)
+        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
+        int n_s = t.size_side;
+        int n_d = t.size_side;
+        int j = t.start_index;
+        int step = 0;
+        for (int i_t = 0; i_t < n_t; i_t++)
         {
-            int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-            for (int j = t.start_index + i; j < end_cicle; j += n + 1)
-            {
-                int row = j / n;
-                int col = j % n;
-                if (row < col)
-                {
-                    M[j].value = 1;
-                    M[j].computed = true;
+            int row = std::floor((float)j / n);
+            int col = j % n;
 
-                    M[col * n + row].value = 1;
-                    M[col * n + row].computed = true;
-                }
-            }
+            M[j].value = 10;
+            M[j].computed = true;
+
+            M[col * n + row].value = 10;
+            M[col * n + row].computed = true;
+
+            step = std::floor(float(i_t + 1) / n_s) == 1 ? step + 1 : step;
+            n_d = std::floor(float(i_t + 1) / n_s) == 1 ? n_d - 1 : n_d;
+            j = std::floor(float(i_t + 1) / n_s) == 1 ? t.start_index + step : j + n + 1;
+            n_s = std::floor(float(i_t + 1) / n_s) == 1 ? n_s + n_d : n_s;
         }
     }
 
     if (!t.is_diag)
     {
-        for (int i = 0; i < t.size_side; i++)
+        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
+        int i_d = 1;
+        int d = 1;
+        int j = t.start_index;
+        int step = 0;
+        for (int i_t = 0; i_t < n_t && j < std::ceil((float)t.start_index / n) * n; i_t++)
         {
+            int row = std::floor((float)j / n);
+            int col = j % n;
 
-            for (int j = t.start_index - (i * n); j < t.start_index + i + 1; j += n + 1)
-            {
-                int row = j / n;
-                int col = j % n;
-                if (row < col)
-                {
-                    M[j].value = 1;
-                    M[j].computed = true;
+            M[j].value = 10;
+            M[j].computed = true;
 
-                    M[col * n + row].value = 1;
-                    M[col * n + row].computed = true;
-                }
-            }
+            M[col * n + row].value = 10;
+            M[col * n + row].computed = true;
+
+            i_d -= 1;
+            step = i_d == 0 ? step + 1 : step;
+            j = i_d == 0 ? t.start_index - (n * step) : j + n + 1;
+            d = i_d == 0 ? d + 1 : d;
+            i_d = i_d == 0 ? d : i_d;
         }
     }
 }
@@ -193,6 +202,7 @@ int main(int argc, char *argv[])
         for (int j = 0; j < triangles[i].size(); j++)
         {
             iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            // std::cout << (triangles[i]->size_side * triangles[i]->size_side) / 2 << std::endl;
         }
     }
     std::cout << "triangles: " << triangles.size() << std::endl;

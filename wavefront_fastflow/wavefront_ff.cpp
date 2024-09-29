@@ -42,6 +42,7 @@ struct Worker : ff::ff_node_t<task, int>
             M[i * n + i + k] = res;
             M[(i + k) * n + i] = res;
         }
+
         delete task;
 
         ff_send_out(new int(1));
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
     auto start = std::chrono::high_resolution_clock::now();
 
     for (int m = 0; m < n; m++)
-        M[m * n + m] = static_cast<double>(m + 1) / n;
+        M[m * n + m] = static_cast<float>(m + 1) / n;
 
     ff_farm farm;
     std::vector<ff_node *> workers;

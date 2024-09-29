@@ -140,8 +140,8 @@ struct Worker : ff_Map<task, int>
 {
     using map = ff_Map<task, int>;
 
-    Worker(int _n, std::vector<float> &_M)
-        : n(_n), M(_M) {}
+    Worker(int _n, std::vector<float> &_M, int _nw)
+        : n(_n), M(_M), nw(_nw) {}
 
     int *svc(task *task)
     {
@@ -152,8 +152,8 @@ struct Worker : ff_Map<task, int>
             for (int i = 0; i < t.size_side; i++)
             {
                 int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-                for (int j = t.start_index + i; j < end_cicle; j += n + 1)
-                {
+                parallel_for(t.start_index + i, end_cicle, n + 1, [&](int j)
+                             { 
                     int row = std::floor((float)j / n);
                     int col = j % n;
                     double res = 0.0;
@@ -162,8 +162,7 @@ struct Worker : ff_Map<task, int>
                     res = cbrt(res);
 
                     M[j] = res;
-                    M[col * n + row] = res;
-                };
+                    M[col * n + row] = res; }, nw);
             }
         }
         else
@@ -176,7 +175,9 @@ struct Worker : ff_Map<task, int>
                     int col = j % n;
                     double res = 0.0;
                     for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                    {
                         res += M[start_row] * M[start_col];
+                    }
                     res = cbrt(res);
 
                     M[j] = res;
@@ -191,21 +192,23 @@ struct Worker : ff_Map<task, int>
     }
 
     int n;
+    int nw;
     std::vector<float> &M;
 };
 
 int main(int argc, char *argv[])
 {
-    if (argc < 4)
+    if (argc < 5)
     {
-        std::cout << "./" << argv[0] << " <n> <nt> <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n_matrix> <n_triangles> <n_farm> <n_map>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
 
     int n = atoi(argv[1]);
     ssize_t ntriangles = atoi(argv[2]);
-    ssize_t nworkers = atoi(argv[3]);
+    ssize_t nwfarm = atoi(argv[3]);
+    ssize_t nwmap = atoi(argv[4]);
     std::vector<float> M(n * n, 1);
 
     auto start_compute = std::chrono::high_resolution_clock::now();
@@ -219,8 +222,8 @@ int main(int argc, char *argv[])
 
     std::vector<std::unique_ptr<ff::ff_node>>
         workers;
-    for (int i = 0; i < nworkers; ++i)
-        workers.push_back(std::make_unique<Worker>(n, M));
+    for (int i = 0; i < nwfarm; ++i)
+        workers.push_back(std::make_unique<Worker>(n, M, nwmap));
     ff::ff_Farm<int> farm(std::move(workers), emitter);
 
     farm.remove_collector();
@@ -236,7 +239,7 @@ int main(int argc, char *argv[])
     auto end_compute = std::chrono::high_resolution_clock::now();
     auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
 
-    std::cout << "init time compute: " << duration_compute.count() << std::endl;
+    std::cout << "time compute: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
     std::cout << M[n - 1] << std::endl;
     std::cout << std::endl;
