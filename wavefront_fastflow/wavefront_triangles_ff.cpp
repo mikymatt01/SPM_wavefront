@@ -148,14 +148,12 @@ struct Worker : ff_Map<task, int>
         triangle t = *task;
         if (t.is_diag)
         {
-
             for (int i = 0; i < t.size_side; i++)
             {
                 int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-                for (int j = t.start_index + i; j < end_cicle; j += n + 1)
+                int j = t.start_index + i;
+                for (int row = j / n, col = j % n; j < end_cicle && row < col; j += n + 1, row = j / n, col = j % n)
                 {
-                    int row = std::floor((float)j / n);
-                    int col = j % n;
                     double res = 0.0;
                     for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
                         res += M[start_row] * M[start_col];
@@ -163,19 +161,19 @@ struct Worker : ff_Map<task, int>
 
                     M[j] = res;
                     M[col * n + row] = res;
-                };
+                }
             }
         }
-        else
+
+        if (!t.is_diag)
         {
             for (int i = 0; i < t.size_side; i++)
             {
-                for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
+                int j = t.start_index - (i * n);
+                for (int row = j / n, col = j % n; j < t.start_index + i + 1 && row < col; j += n + 1, row = j / n, col = j % n)
                 {
-                    int row = std::floor((float)j / n);
-                    int col = j % n;
                     double res = 0.0;
-                    for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                    for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
                         res += M[start_row] * M[start_col];
                     res = cbrt(res);
 

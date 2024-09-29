@@ -1,5 +1,5 @@
 CXX                = g++ -std=c++20
-OPTFLAGS	   = -O3 -march=native -ffast-math -ftree-vectorize -fopt-info-vec-missed
+OPTFLAGS	   = -O3 -march=native -ffast-math -ftree-vectorize #-fopt-info-vec-missed
 CXXFLAGS          += -Wall
 INCLUDES	   = -I. -I./ff
 

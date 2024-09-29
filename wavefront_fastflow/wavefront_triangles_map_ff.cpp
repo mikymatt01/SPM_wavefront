@@ -154,7 +154,7 @@ struct Worker : ff_Map<task, int>
                 int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
                 parallel_for(t.start_index + i, end_cicle, n + 1, [&](int j)
                              { 
-                    int row = std::floor((float)j / n);
+                    int row = j / n;
                     int col = j % n;
                     double res = 0.0;
                     for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
@@ -171,7 +171,7 @@ struct Worker : ff_Map<task, int>
             {
                 for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
                 {
-                    int row = std::floor((float)j / n);
+                    int row = j / n;
                     int col = j % n;
                     double res = 0.0;
                     for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
