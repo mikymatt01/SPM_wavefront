@@ -141,48 +141,52 @@ struct Worker : ff_Map<task, int>
     using map = ff_Map<task, int>;
 
     Worker(int _n, std::vector<float> &_M, int _nw)
-        : n(_n), M(_M), nw(_nw) {}
+        : n(_n), M(_M), nw(_nw)
+    {
+    }
 
     int *svc(task *task)
     {
         triangle t = *task;
+        ParallelFor pf(nw);
         if (t.is_diag)
         {
 
             for (int i = 0; i < t.size_side; i++)
             {
                 int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-                parallel_for(t.start_index + i, end_cicle, n + 1, [&](int j)
-                             { 
-                    int row = j / n;
-                    int col = j % n;
-                    double res = 0.0;
-                    for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
+                pf.parallel_for(t.start_index + i, end_cicle, n + 1, [&](int j)
+                                {
+                    int row = j / n, col = j % n;
+                    if (row < col) {
+                        double res = 0.0;
+                        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                            res += M[start_row] * M[start_col];
+                        res = cbrt(res);
 
-                    M[j] = res;
-                    M[col * n + row] = res; }, nw);
+                        M[j] = res;
+                        M[col * n + row] = res;
+                } }, nw);
             }
         }
         else
         {
             for (int i = 0; i < t.size_side; i++)
             {
-                for (int j = t.start_index - (i * n); j <= t.start_index + i && j < std::ceil((float)t.start_index / n) * n; j += n + 1)
-                {
-                    int row = j / n;
-                    int col = j % n;
-                    double res = 0.0;
-                    for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                int j = t.start_index - (i * n);
+                pf.parallel_for(j, t.start_index + i + 1, n + 1, [&](int j)
+                                {
+                    int row = j / n, col = j % n;
+                    if (row < col)
                     {
-                        res += M[start_row] * M[start_col];
-                    }
-                    res = cbrt(res);
+                        double res = 0.0;
+                        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                            res += M[start_row] * M[start_col];
+                        res = cbrt(res);
 
-                    M[j] = res;
-                    M[col * n + row] = res;
-                }
+                        M[j] = res;
+                        M[col * n + row] = res;
+                    } }, nw);
             }
         }
 
@@ -239,7 +243,7 @@ int main(int argc, char *argv[])
     auto end_compute = std::chrono::high_resolution_clock::now();
     auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
 
-    std::cout << "time compute: " << duration_compute.count() << std::endl;
+    std::cout << "time: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
     std::cout << M[n - 1] << std::endl;
     std::cout << std::endl;

@@ -16,7 +16,7 @@ typedef struct
     bool is_diag;
 } triangle;
 
-using task = triangle;
+using task = std::pair<int, int>;
 
 void printMatrix(std::vector<double> M, uint64_t n)
 {
@@ -116,7 +116,7 @@ struct Emitter : ff_monode_t<int, task>
                 tasks_sent = 0;
                 for (int j = 0; j < (int)triangles[i].size(); j++)
                 {
-                    ff_send_out(triangles[i][j]);
+                    ff_send_out(new task(i, j));
                     tasks_sent++;
                 }
                 i++;
@@ -140,46 +140,53 @@ struct Worker : ff_Map<task, int>
 {
     using map = ff_Map<task, int>;
 
-    Worker(int _n, std::vector<float> &_M)
-        : n(_n), M(_M) {}
+    Worker(int _n, std::vector<float> &_M, const std::vector<std::vector<triangle *>> _triangles, int _nw)
+        : n(_n), M(_M), nw(_nw), triangles(_triangles) {}
 
     int *svc(task *task)
     {
-        triangle t = *task;
+        int i = task->first;
+        int j = task->second;
+        triangle t = *triangles[i][j];
+        ParallelFor pf(nw);
         if (t.is_diag)
         {
+
             for (int i = 0; i < t.size_side; i++)
             {
                 int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
-                int j = t.start_index + i;
-                for (int row = j / n, col = j % n; j < end_cicle && row < col; j += n + 1, row = j / n, col = j % n)
-                {
-                    double res = 0.0;
-                    for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
+                pf.parallel_for(t.start_index + i, end_cicle, n + 1, [&](int j)
+                                {
+                    int row = j / n, col = j % n;
+                    if (row < col) {
+                        double res = 0.0;
+                        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                            res += M[start_row] * M[start_col];
+                        res = cbrt(res);
 
-                    M[j] = res;
-                    M[col * n + row] = res;
-                }
+                        M[j] = res;
+                        M[col * n + row] = res;
+             } }, nw);
             }
         }
-
-        if (!t.is_diag)
+        else
         {
             for (int i = 0; i < t.size_side; i++)
             {
                 int j = t.start_index - (i * n);
-                for (int row = j / n, col = j % n; j < t.start_index + i + 1 && row < col; j += n + 1, row = j / n, col = j % n)
-                {
-                    double res = 0.0;
-                    for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
-                        res += M[start_row] * M[start_col];
-                    res = cbrt(res);
+                pf.parallel_for(j, t.start_index + i + 1, n + 1, [&](int j)
+                                {
+                    int row = j / n, col = j % n;
+                    if (row < col)
+                    {
+                        double res = 0.0;
+                        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                            res += M[start_row] * M[start_col];
+                        res = cbrt(res);
 
-                    M[j] = res;
-                    M[col * n + row] = res;
-                }
+                        M[j] = res;
+                        M[col * n + row] = res;
+                    } }, nw);
             }
         }
 
@@ -189,21 +196,24 @@ struct Worker : ff_Map<task, int>
     }
 
     int n;
+    int nw;
     std::vector<float> &M;
+    const std::vector<std::vector<triangle *>> triangles;
 };
 
 int main(int argc, char *argv[])
 {
-    if (argc < 4)
+    if (argc < 5)
     {
-        std::cout << "./" << argv[0] << " <n> <nt> <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n_matrix> <n_triangles> <n_farm> <n_map>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
 
     int n = atoi(argv[1]);
     ssize_t ntriangles = atoi(argv[2]);
-    ssize_t nworkers = atoi(argv[3]);
+    ssize_t nwfarm = atoi(argv[3]);
+    ssize_t nwmap = atoi(argv[4]);
     std::vector<float> M(n * n, 1);
 
     auto start_compute = std::chrono::high_resolution_clock::now();
@@ -217,9 +227,9 @@ int main(int argc, char *argv[])
 
     std::vector<std::unique_ptr<ff::ff_node>>
         workers;
-    for (int i = 0; i < nworkers; ++i)
-        workers.push_back(std::make_unique<Worker>(n, M));
-    ff::ff_Farm<int> farm(std::move(workers), emitter);
+    for (int i = 0; i < nwfarm; ++i)
+        workers.push_back(std::make_unique<Worker>(n, M, triangles, nwmap));
+    ff::ff_Farm farm(std::move(workers), emitter);
 
     farm.remove_collector();
     farm.wrap_around();
