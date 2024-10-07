@@ -15,7 +15,7 @@ mkdir -p $RESULTS_DIR
 RESULTS_FILE="$RESULTS_DIR/wavefront_runtimes.csv"
 
 # Define the arrays
-MATRIX_SIZES=(2048 2896 4096 5793 8192)
+MATRIX_SIZES=(2048 2896 4096 5793)
 N_TRIANGLES=(1 2 4 8 16 32 64)
 N_WORKERS=(1 2 4 8 16 32 64)
 N_MAP=(1 2 4 8 16 32 64)
@@ -37,19 +37,19 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
             case $exe in
               "wavefront_diagonal_ff")
                 if (( n_map == 1)) && (( n_farm == 1 )) && ((n_tri == 1)); then
-                  time=$(./"$exe" "$n_mat" "$n_w" | grep "time:" | awk '{print $2}')
+                  time=$(mpirun -np 1 ./"$exe" "$n_mat" "$n_w" | grep "time:" | awk '{print $2}')
                 fi
                 ;;
               "wavefront_triangles_ff")
                 if (( n_map == 1)) && (( n_farm == 1 )); then
-                  time=$(./"$exe" "$n_mat" "$n_tri" "$n_w" | grep "time:" | awk '{print $2}')
+                  time=$(mpirun -np 1 ./"$exe" "$n_mat" "$n_tri" "$n_w" | grep "time:" | awk '{print $2}')
                 fi
                 ;;
               "wavefront_triangles_map_ff_comm")
-                time=$(./"$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm" | grep "time:" | awk '{print $2}')
+                time=$(mpirun -np 1 ./"$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm" | grep "time:" | awk '{print $2}')
                 ;;
               "wavefront_triangles_map_ff")
-                time=$(./"$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm" | grep "time:" | awk '{print $2}')
+                time=$(mpirun -np 1 ./"$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm" | grep "time:" | awk '{print $2}')
                 ;;
               *)
                 echo "Unknown exe."

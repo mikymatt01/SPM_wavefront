@@ -23,8 +23,9 @@ fastflow:
 squares:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
 
-mpi: wavefront_mpi.cpp
-	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
+mpi:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangle_dependences ./wavefront_mpi/wavefront_triangle_dependences.cpp
+#mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
 
 all: sequential fastflow mpi
 
