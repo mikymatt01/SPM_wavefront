@@ -24,7 +24,7 @@ squares:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
 
 mpi:
-	mpicxx -Wall -O3 -o wavefront_diagonal_mpi ./wavefront_mpi/wavefront_diagonal_mpi.cpp
+	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_mpi ./wavefront_mpi/wavefront_diagonal_mpi.cpp
 
 #$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangle_dependences ./wavefront_mpi/wavefront_triangle_dependences.cpp
 #mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi

@@ -4,6 +4,11 @@
 #include <cmath>
 #include <mpi.h>
 
+struct Dependence {
+    std::vector<double> values;
+    int k;
+};
+
 void printMatrix(std::vector<double> M, int n_rows, int n_cols)
 {
     for (int i = 0; i < n_rows; ++i)
@@ -50,12 +55,11 @@ inline void divide_job_into_parts(int number, std::vector<int> &displs, std::vec
     }
 }
 
-inline std::pair<std::vector<double>, int> find_diagonal_dependences(
+inline std::vector<double> find_diagonal_dependences(
     std::vector<double> &M, 
     int n_matrix, 
     int start_index, 
-    int diag_size,
-    int my_rank
+    int diag_size
 )
 {
     int j = start_index;
@@ -77,20 +81,20 @@ inline std::pair<std::vector<double>, int> find_diagonal_dependences(
             col_el_index++;
         }
     }
-    return std::make_pair(dependences, k);
+    return dependences;
 }
 
 inline std::vector<double> compute_diagonal_using_dependences(
     int n_matrix,
-    int start_index,
     int diag_size,
-    std::vector<double> dependences,
-    int k,
-    int my_rank
-    )
+    std::vector<double> dependences
+)
 {
     std::vector<double> values;
-    int row_matrix = start_index / n_matrix;
+    if (!diag_size)
+        return values;
+
+    int k = dependences.size() / (diag_size * 2);
     int row_count = 0;
     double res;
     int row_deps = 0;
@@ -124,39 +128,85 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
 
+    std::vector<int> send_counts(n_processes, 0);
+    std::vector<int> send_displs(n_processes, 0);
+    
     std::vector<int> counts(n_processes, 0);
     std::vector<int> displs(n_processes, 0);
-
+    
     int n = atoi(argv[1]);
-    std::vector<double> M(n * n, 1);
-    std::pair<std::vector<double>, int> dependences;
+    std::vector<double> M;
+    if (!myrank)
+        M.resize(n * n);
+    std::vector<double> values;
+
     int start_index = 0;
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    for (int m = 0; m < n; m++)
-        M[m * n + m] = static_cast<double>(m + 1) / n;
+    if (!myrank)
+    {
+        for (int m = 0; m < n; m++)
+            M[m * n + m] = static_cast<double>(m + 1) / n;
+    }
 
     for (int k = 1; k < n; k++)
     {
         start_index = k;
-        std::vector<double> values;
         std::vector<double> global_values(n - k + 1);
+        std::vector<double> global_dependences;
+        std::vector<double> partial;
+        int send_displ = 0;
 
         divide_job_into_parts(n - k, displs, counts, n_processes);
-        start_index += (n * displs[myrank] + displs[myrank]);
 
-        dependences = find_diagonal_dependences(M, n, start_index, counts[myrank], myrank);
-        values = compute_diagonal_using_dependences(n, start_index, counts[myrank], dependences.first, dependences.second, myrank);
-
-        MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
-                       global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
-                       MPI_COMM_WORLD);
-
-        for (int i = 0; i < n - k; i += 1)
+        for (int rank = 0; rank < n_processes; rank++)
         {
-            M[i * n + i + k] = global_values[i];
-            M[(i + k) * n + i] = global_values[i];
+            send_counts[rank] = counts[rank] * k * 2;
+            send_displs[rank] = send_displ;
+            send_displ += send_counts[rank];
+        }
+
+        if (!myrank)
+            for (int rank = 0; rank < n_processes; rank++)
+            {
+                partial = find_diagonal_dependences(M, n, start_index, counts[rank]);
+                start_index += (counts[rank] * n + counts[rank]);
+                global_dependences.insert(global_dependences.end(), partial.begin(), partial.end());
+            }
+
+        std::vector<double> dependences(send_counts[myrank]);
+        MPI_Scatterv(
+            global_dependences.data(),
+            send_counts.data(),
+            send_displs.data(),
+            MPI_DOUBLE,
+            dependences.data(),
+            send_counts[myrank],
+            MPI_DOUBLE,
+            0,
+            MPI_COMM_WORLD);
+
+        values = compute_diagonal_using_dependences(n, counts[myrank], dependences);
+
+        MPI_Gatherv(
+            values.data(),
+            values.size(),
+            MPI_DOUBLE,
+            global_values.data(),
+            counts.data(),
+            displs.data(),
+            MPI_DOUBLE,
+            0,
+            MPI_COMM_WORLD);
+
+        if (!myrank)
+        {
+            for (int i = 0; i < n - k; i += 1)
+            {
+                M[i * n + i + k] = global_values[i];
+                M[(i + k) * n + i] = global_values[i];
+            }
         }
     }
     auto end = std::chrono::high_resolution_clock::now();
@@ -167,9 +217,8 @@ int main(int argc, char *argv[])
         std::cout << "time: " << duration.count() << std::endl;
         std::cout << "end execution" << std::endl;
         std::cout << "last: " << M[n - 1] << std::endl;
-        printMatrix(M, n, n);
     }
 
     MPI_Finalize();
     return 0;
-}
+    }
