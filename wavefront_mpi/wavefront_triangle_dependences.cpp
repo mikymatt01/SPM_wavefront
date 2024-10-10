@@ -172,7 +172,7 @@ std::pair<std::vector<double>, int> find_reversed_triangle_dependences(std::vect
 {
     int j = t.start_index;
     int row = j / n;
-    int k = j - row * n + row;
+    int k = (j + t.size_side * n) - row * n + row;
     std::vector<double> dependences(k * t.size_side * 2);
 
     int row_el_index = 0;
@@ -201,7 +201,7 @@ std::pair<std::vector<double>, int> find_reversed_triangle_dependences(std::vect
     return std::make_pair(dependences, k);
 }
 
-void compute_triangle_using_dependences(triangle t, int n_matrix, std::vector<double> dependences)
+std::vector<double> compute_triangle_using_dependences(triangle t, int n_matrix, std::vector<double> dependences)
 {
     std::vector<double> M(t.size_side * t.size_side);
     int row_matrix = t.start_index / n_matrix, col_matrix;
@@ -239,6 +239,43 @@ void compute_triangle_using_dependences(triangle t, int n_matrix, std::vector<do
             M[(col_cursor + row_cursor) * t.size_side + col_cursor] = res;
         }
     }
+
+    return M;
+}
+
+std::vector<double> compute_reversed_triangle_using_dependences(triangle t, int n_matrix, std::vector<double> dependences)
+{
+    std::vector<double> M(t.size_side * t.size_side);
+    int row_matrix = t.start_index / n_matrix, col_matrix;
+    int max_k = (t.start_index + t.size_side * n_matrix) - row_matrix * n_matrix + row_matrix;
+    int k = t.start_index - row_matrix * n_matrix + row_matrix;
+    int row_count = 0;
+    int row_dependence = 0;
+    int col_dependence = t.size_side * max_k;
+    for (int col_cursor = t.size_side * (t.size_side - 1) + 1; col_cursor >= 0; col_cursor -= t.size_side, row_count += 1, k += 1)
+    {
+        int diag_count = 0;
+        for (int diag_cursor = col_cursor; diag_cursor < t.size_side * (t.size_side - 1) + 1 + row_count; diag_cursor += t.size_side + 1)
+        {
+            double res = 0.0;
+            for (int t = 0; t < k; ++t)
+                res += dependences[row_dependence + t] * M[col_dependence + t];
+            res = cbrt(res);
+
+            dependences[row_dependence + t] = res;
+            dependences[col_dependence + t] = res;
+
+            M[diag_cursor] = res;
+            row_matrix = diag_cursor / t.size_side;
+            col_matrix = diag_cursor % t.size_side;
+            M[col_matrix * t.size_side + row_matrix] = res;
+
+            diag_count++;
+            // handle row_dependence and col_dependence
+        }
+        row_dependence = row_count * max_k;
+        col_dependence = t.size_side * max_k;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -267,9 +304,12 @@ int main(int argc, char *argv[])
     triangle t = *triangles[2][0];
     std::pair<std::vector<double>, int> dependences;
     iterate_on_matrix_by_triangle(M, t, n);
-    if (t.is_diag) {
+    if (t.is_diag)
+    {
         dependences = find_triangle_dependences(M, n, t);
-    }else {
+    }
+    else
+    {
         dependences = find_reversed_triangle_dependences(M, n, t);
     }
     printMatrix(M, n, n);

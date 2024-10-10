@@ -1,27 +1,29 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 #include <chrono>
+#include <cmath>
+#include <mpi.h>
 
-void printMatrix(std::vector<double> M, int n)
+void divide_job_into_parts(int number, std::vector<int> &displs, std::vector<int> &counts, int n)
 {
-    int total = 0;
-    bool check = false;
-    for (int k = 0; k < n; k++)
+    if (n <= 0 || number < 0)
+        return;
+
+    int quotient = number / n;
+    int remainder = number % n;
+    int start = 0;
+
+    for (int i = 0; i < n; ++i)
+        counts[i] = quotient;
+
+    for (int i = 0; i < remainder; ++i)
+        counts[i] += 1;
+
+    for (int i = 1; i < n; ++i)
     {
-        for (int i = 0; i < n - k; i++)
-        {
-            if (M[i * n + i + k] == 0)
-            {
-                total += 1;
-                std::cout << "index: " << i * n + i + k << ", diagonal: " << k << ", value: " << M[i * n + i + k] << std::endl;
-                check = true;
-            }
-        }
-        if (check)
-            exit(1);
+        start += counts[i - 1];
+        displs[i] = start;
     }
-    std::cout << "total not computed: " << total << std::endl;
 }
 
 typedef struct
@@ -97,23 +99,9 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
     return triangles;
 }
 
-void printTriangle(triangle t)
+std::vector<double> iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
 {
-    std::cout << "start_index: " << t.start_index << std::endl;
-    std::cout << "size_side: " << t.size_side << std::endl;
-    std::cout << "is_diag: " << t.is_diag << std::endl;
-}
-
-void printArray(std::vector<double> x, int n)
-{
-    for (int i = 0; i < n; i++)
-        std::cout << x[i] << " ";
-    if (n > 0)
-        std::cout << std::endl;
-}
-
-void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
-{
+    std::vector<double> values;
     for (int i = 0; i < t.size_side; i++)
     {
         int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
@@ -124,15 +112,15 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
             for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
                 res += M[start_row] * M[start_col];
             res = cbrt(res);
-
-            M[j] = res;
-            M[col * n + row] = res;
+            values.push_back(res);
         }
     }
+    return values;
 }
 
-void iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n)
+std::vector<double> iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n)
 {
+    std::vector<double> values;
     for (int i = 0; i < t.size_side; i++)
     {
         int j = t.start_index - (i * n);
@@ -142,28 +130,49 @@ void iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, 
             for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
                 res += M[start_row] * M[start_col];
             res = cbrt(res);
-
-            M[j] = res;
-            M[col * n + row] = res;
+            values.push_back(res);
         }
+    }
+    return values;
+}
+
+void printMatrix(std::vector<double> M, int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; j++)
+            std::cout << std::ceil(M[i * n + j] * 100) / 100 << "\t";
+        std::cout << std::endl;
     }
 }
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3)
+    if (argc < 2)
     {
-        std::cout << "./" << argv[0] << " <n> <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
 
+    MPI_Init(&argc, &argv);
+
+    int n_processes;
+    int myrank;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
+
+
+    std::vector<int> counts(n_processes, 0);
+    std::vector<int> displs(n_processes, 0);
+
     int n = atoi(argv[1]);
     int ntriangles = atoi(argv[2]);
-    std::vector<double> M(n * n, 0);
-
-    auto start_compute = std::chrono::high_resolution_clock::now();
+    std::vector<double> M(n * n, 1);
     std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, ntriangles);
+
+    auto start = std::chrono::high_resolution_clock::now();
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
@@ -172,17 +181,49 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
+            std::vector<double> values;
             if (*triangles[i][j]->is_diag)
-                iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+                values = iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
             else
-                iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n);
+                values = iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n);
         }
     }
-    auto end_compute = std::chrono::high_resolution_clock::now();
-    auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
 
-    std::cout << "time: " << duration_compute.count() << std::endl;
-    std::cout << "end execution" << std::endl;
-    std::cout << "last: " << M[n - 1] << std::endl;
+    for (int k = 1; k < n; k++)
+    {
+        std::vector<double> values;
+        std::vector<double> global_values(n - k + 1);
+
+        divide_job_into_parts(n - k, displs, counts, n_processes);
+
+        for (int i = displs[myrank]; i < displs[myrank] + counts[myrank]; i++)
+        {
+            double value = 0.0;
+            for (int t = 0; t < k; ++t)
+                value += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
+            value = cbrt(value);
+            values.push_back(value);
+        }
+
+        MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
+                       global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
+                       MPI_COMM_WORLD);
+
+        for (int i = 0; i < n - k; i += 1)
+        {
+            M[i * n + i + k] = global_values[i];
+            M[(i + k) * n + i] = global_values[i];
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+
+    if (!myrank)
+    {
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::cout << "time: " << duration.count() << std::endl;
+        std::cout << "end execution" << std::endl;
+    }
+
+    MPI_Finalize();
     return 0;
 }

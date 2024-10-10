@@ -115,7 +115,6 @@ struct Emitter : ff_monode_t<int, task>
     int tasks_received = 0;
     int tasks_sent = 0;
     std::vector<float> &M;
-    ff_farm *farm;
     std::vector<ff_node *> &workers;
 };
 
