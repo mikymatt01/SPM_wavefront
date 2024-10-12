@@ -7,4 +7,4 @@
 #SBATCH --requeue                   # Requeue job in case of failure
 
 # Run your shell script
-sh test_fastflow.sh
+sh ./fastflow_test/test_triangles.sh

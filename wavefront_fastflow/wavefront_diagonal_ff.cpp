@@ -11,6 +11,8 @@ struct task
     int start;
     int count;
     int k;
+
+    task(int s, int c, int _k) : start(s), count(c), k(_k) {}
 };
 using namespace ff;
 void printMatrix(std::vector<float> M, int n)
@@ -161,7 +163,6 @@ int main(int argc, char *argv[])
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "time: " << duration.count() << std::endl;
     std::cout << "end execution" << std::endl;
-    std::cout << M[n - 1] << std::endl;
-
+    std::cout << "last: " << M[n - 1] << std::endl;
     return 0;
 }

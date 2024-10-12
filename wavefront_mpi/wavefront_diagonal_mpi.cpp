@@ -150,13 +150,17 @@ int main(int argc, char *argv[])
             M[m * n + m] = static_cast<double>(m + 1) / n;
     }
 
+    std::vector<double> global_values;
+    std::vector<double> global_dependences;
+    std::vector<double> partial;
+    int send_displ;
+
     for (int k = 1; k < n; k++)
     {
+        global_values.resize(n - k + 1);
+        global_dependences.clear();
         start_index = k;
-        std::vector<double> global_values(n - k + 1);
-        std::vector<double> global_dependences;
-        std::vector<double> partial;
-        int send_displ = 0;
+        send_displ = 0;
 
         divide_job_into_parts(n - k, displs, counts, n_processes);
 

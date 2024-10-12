@@ -233,10 +233,8 @@ int main(int argc, char *argv[])
 
     auto end_compute = std::chrono::high_resolution_clock::now();
     auto duration_compute = std::chrono::duration_cast<std::chrono::milliseconds>(end_compute - start_compute);
-
     std::cout << "time: " << duration_compute.count() << std::endl;
     std::cout << "end execution" << std::endl;
-    std::cout << M[n - 1] << std::endl;
-    std::cout << std::endl;
+    std::cout << "last: " << M[n - 1] << std::endl;
     return 0;
 }
