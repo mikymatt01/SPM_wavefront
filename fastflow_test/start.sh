@@ -1,4 +1,4 @@
-sbatch test_diagonal_slurm.sh
-sbatch test_triangles_map_comm_slurm.sh
-sbatch test_triangles_map_slurm.sh
-sbatch test_triangles_slurm.sh
+./test_diagonal.sh &
+./test_triangles_map_comm.sh &
+./test_triangles_map.sh &
+./test_triangles.sh &

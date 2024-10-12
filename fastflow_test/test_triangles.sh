@@ -20,7 +20,7 @@ N_TRIANGLES=(1 2 4 8 16 32)
 N_WORKERS=(1 2 4 8 16 32)
 
 # Iterate over all executable files
-echo "Name,Matrix size,Workers number,Map threads,Farm threads,Time,Value" >> $RESULTS_FILE
+echo "Name,Matrix size,Workers number,Map threads,Farm threads,Triangles number,Time,Value" >> $RESULTS_FILE
 for n_mat in "${MATRIX_SIZES[@]}"; do
   for n_tri in "${N_TRIANGLES[@]}"; do
     for n_w in "${N_WORKERS[@]}"; do
@@ -33,7 +33,7 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
       if ((time != -10)); then
         echo "time: $time"
         echo "file: $RESULTS_FILE"
-        echo "$exe,$n_mat,$n_w,_,_,$time,$value" >> $RESULTS_FILE
+        echo "$exe,$n_mat,$n_w,_,_,$n_tri,$time,$value" >> $RESULTS_FILE
       fi
       # Check if execution was successful
       if [ $? -ne 0 ]; then

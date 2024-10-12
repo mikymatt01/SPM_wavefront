@@ -19,7 +19,7 @@ MATRIX_SIZES=(2048 2896 4096 5793 8192)
 N_WORKERS=(1 2 4 8 16 32)
 
 # Iterate over all executable files
-echo "Name,Matrix size,Workers number,Map threads,Farm threads,Time,Value" >> $RESULTS_FILE
+echo "Name,Matrix size,Workers number,Map threads,Farm threads,Triangles number,Time,Value" >> $RESULTS_FILE
 for n_mat in "${MATRIX_SIZES[@]}"; do
   for n_w in "${N_WORKERS[@]}"; do
     echo "Running executable: $exe, map: $n_map, farm: $n_farm, work: $n_w n_mat: $n_mat"
@@ -29,7 +29,7 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
     value=$(echo "$command_output" | grep "last:" | awk '{print $2}')
     echo "$command_output"
     if ((time != -10)); then
-      echo "$exe,$n_mat,$n_w,_,_,$time,$value" >> $RESULTS_FILE
+      echo "$exe,$n_mat,$n_w,_,_,_,$time,$value" >> $RESULTS_FILE
     fi
     # Check if execution was successful
     if [ $? -ne 0 ]; then
