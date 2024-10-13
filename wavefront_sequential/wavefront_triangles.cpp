@@ -172,7 +172,8 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
-            if (*triangles[i][j]->is_diag)
+            printTriangle(*triangles[i][j]);
+            if (triangles[i][j]->is_diag)
                 iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
             else
                 iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n);
