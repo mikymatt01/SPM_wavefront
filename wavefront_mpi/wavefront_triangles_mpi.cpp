@@ -115,8 +115,9 @@ std::vector<double> iterate_on_matrix_by_triangle(std::vector<double> &M, triang
         for (int row = j / n, col = j % n; j < end_cicle && row < col; j += n + 1, row = j / n, col = j % n)
         {
             double res = 0.0;
-            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col) {
                 res += M[start_row] * M[start_col];
+            }
             res = cbrt(res);
             M[j] = res;
             M[col * n + row] = res;
@@ -129,15 +130,15 @@ std::vector<double> iterate_on_matrix_by_triangle(std::vector<double> &M, triang
 std::vector<double> iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n, int myrank, int debugrank)
 {
     std::vector<double> values;
-    int cycle = 0;
     for (int i = 0; i < t.size_side; i++)
     {
         int j = t.start_index - (i * n);
-        for (int row = j / n, col = j % n; j < t.start_index + i + 1 && row < col; j += n + 1, row = j / n, col = j % n, cycle++)
+        for (int row = j / n, col = j % n; j < t.start_index + i + 1 && row < col; j += n + 1, row = j / n, col = j % n)
         {
             double res = 0.0;
-            for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
+            for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col) {
                 res += M[start_row] * M[start_col];
+            }
             res = cbrt(res);
             M[j] = res;
             M[col * n + row] = res;
@@ -210,6 +211,17 @@ std::vector<double> get_subarray(std::vector<double> global_values, int start_in
     return values;
 }
 
+std::vector<int> check_overlapping_indices(std::vector<triangle*> triangles, int n) {
+    std::vector<int> indices;
+    for (int i = 0; i < triangles.size() - 1; i++) {
+        int upper_triangle_i = triangles[i]->start_index + triangles[i]->size_side;
+        int lower_triangle_i = triangles[i + 1]->start_index + (triangles[i + 1]->size_side * n);
+        if (upper_triangle_i == lower_triangle_i)
+            indices.push_back(upper_triangle_i);
+    }
+    return indices;
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
@@ -235,10 +247,12 @@ int main(int argc, char *argv[])
     std::vector<double> M(n * n, 0);
     std::vector<double> global_values;
     std::vector<double> values;
+    std::vector<int> overlapping_indices;
     int displ = 0;
 
     auto start_time = std::chrono::high_resolution_clock::now();
-    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, n_processes);
+    //if (!myrank)
+        std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, n_processes);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
@@ -253,6 +267,9 @@ int main(int argc, char *argv[])
             counts[j] = 0;
             displs[j] = 0;
         }
+
+        if ((int)triangles[i].size() > 0 && (int)triangles[i][0]->is_diag == false)
+            overlapping_indices = check_overlapping_indices(triangles[i], n);
 
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
@@ -288,6 +305,16 @@ int main(int argc, char *argv[])
             else
                 update_matrix_with_reversed_triangle(M, values, *triangles[i][j], n);
         }
+
+        for (int j = 0; j < overlapping_indices.size(); j++) {
+            double res = 0.0;
+            int row = j / n, col = j % n;
+            for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
+                res += M[start_row] * M[start_col];
+            res = cbrt(res);
+            M[j] = res;
+            M[col * n + row] = res;
+        }
     }
 
     auto end_time = std::chrono::high_resolution_clock::now();
@@ -298,6 +325,7 @@ int main(int argc, char *argv[])
         std::cout << "time: " << duration.count() << std::endl;
         std::cout << "end execution" << std::endl;
         std::cout << "last: " << M[n - 1] << std::endl;
+        printMatrix(M, n);
     }
     MPI_Finalize();
     return 0;
