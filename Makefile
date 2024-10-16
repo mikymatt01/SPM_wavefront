@@ -10,7 +10,7 @@ triangles:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o triangles_collapsed  ./utils/triangles_collapsed.cpp
 
 sequential:
-	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront  ./wavefront_sequential/wavefront_diagonal.cpp
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal  ./wavefront_sequential/wavefront_diagonal.cpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles ./wavefront_sequential/wavefront_triangles.cpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_collapsed ./wavefront_sequential/wavefront_triangles_collapsed.cpp
 

@@ -2,15 +2,10 @@
 source ~/.bashrc
 
 cd ..
-echo "Compiling programs..."
-if [ $? -ne 0 ]; then
-    echo "Compilation failed. Exiting."
-    exit 1
-fi
-echo "Compilation successful."
 
 exe="wavefront_diagonal_ff"
-RESULTS_DIR="fastflow_test/$exe"
+
+RESULTS_DIR="test_fastflow/$exe"
 mkdir -p $RESULTS_DIR
 RESULTS_FILE="$RESULTS_DIR/wavefront_runtimes.csv"
 

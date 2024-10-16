@@ -176,17 +176,17 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        std::cout << "./" << argv[0] << " <n> <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n> <nt>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
 
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
-    ssize_t nworkers = atoi(argv[2]); // ff_numCores();
+    ssize_t ntriangles = atoi(argv[2]); // ff_numCores();
 
     auto start_compute = std::chrono::high_resolution_clock::now();
-    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, nworkers);
+    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, ntriangles);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
