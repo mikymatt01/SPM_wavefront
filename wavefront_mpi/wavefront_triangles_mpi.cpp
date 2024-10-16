@@ -325,7 +325,6 @@ int main(int argc, char *argv[])
         std::cout << "time: " << duration.count() << std::endl;
         std::cout << "end execution" << std::endl;
         std::cout << "last: " << M[n - 1] << std::endl;
-        printMatrix(M, n);
     }
     MPI_Finalize();
     return 0;

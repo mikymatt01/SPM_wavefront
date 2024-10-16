@@ -60,6 +60,19 @@ struct Emitter : ff_monode_t<int, task>
     Emitter(int _n, int _nw, std::vector<ff_node *> &w, std::vector<float> &_M)
         : n(_n), nw(_nw), workers(w), M(_M) {}
 
+    void compute_diag(int start, int count, int k) {
+        for (int i = start; i < start + count; i++)
+        {
+            double res = 0.0;
+            for (int t = 0; t < k; ++t)
+                res += M[i * n + i + t] * M[(i + k) * n + (i + k) - t];
+            res = cbrt(res);
+
+            M[i * n + i + k] = res;
+            M[(i + k) * n + i] = res;
+        }
+    }
+
     task *svc(int *feedback)
     {
         if (feedback != nullptr)
@@ -101,6 +114,9 @@ struct Emitter : ff_monode_t<int, task>
                 ff_send_out(new task(displs[i], counts[i], k));
                 tasks_sent++;
             }
+
+            if (i < nw)
+                compute_diag(displs[i], counts[i], k);
             k++;
         }
 
@@ -141,14 +157,14 @@ int main(int argc, char *argv[])
 
     ff_farm farm;
     std::vector<ff_node *> workers;
-    for (int i = 0; i < n_workers; ++i)
+    for (int i = 0; i < n_workers - 1; ++i)
     {
         workers.push_back(new Worker(n, M));
     }
     Emitter emitter(n, n_workers, workers, M);
     farm.add_emitter(emitter);
-    farm.add_workers(workers);
-
+    if (n_workers - 1 > 0)
+        farm.add_workers(workers);
     farm.remove_collector();
     farm.wrap_around();
     farm.set_scheduling_ondemand();

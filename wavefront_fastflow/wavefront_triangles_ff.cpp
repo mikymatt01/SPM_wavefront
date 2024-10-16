@@ -18,7 +18,7 @@ typedef struct
 
 using task = triangle;
 
-void printMatrix(std::vector<double> M, uint64_t n)
+void printMatrix(std::vector<float> M, uint64_t n)
 {
     for (uint64_t i = 0; i < n; ++i)
     {
@@ -97,8 +97,45 @@ divide_upper_matrix_into_triangles(int n, int nw)
 struct Emitter : ff_monode_t<int, task>
 {
 
-    Emitter(const std::vector<std::vector<triangle *>> &_triangles, std::vector<float> &_M, int _n)
-        : triangles(_triangles), M(_M), n(_n) {}
+    Emitter(const std::vector<std::vector<triangle *>> &_triangles, std::vector<float> &_M, int _n, int _nw)
+        : triangles(_triangles), M(_M), n(_n), nw(_nw) {}
+
+    void compute_triangle(triangle t)
+    {
+        for (int i = 0; i < t.size_side; i++)
+        {
+            int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
+            int j = t.start_index + i;
+            for (int row = j / n, col = j % n; j < end_cicle && row < col; j += n + 1, row = j / n, col = j % n)
+            {
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
+                    res += M[start_row] * M[start_col];
+                res = cbrt(res);
+
+                M[j] = res;
+                M[col * n + row] = res;
+            }
+        }
+    }
+
+    void compute_reversed_triangle(triangle t)
+    {
+        for (int i = 0; i < t.size_side; i++)
+        {
+            int j = t.start_index - (i * n);
+            for (int row = j / n, col = j % n; j < t.start_index + i + 1 && row < col; j += n + 1, row = j / n, col = j % n)
+            {
+                double res = 0.0;
+                for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
+                    res += M[start_row] * M[start_col];
+                res = cbrt(res);
+
+                M[j] = res;
+                M[col * n + row] = res;
+            }
+        }
+    }
 
     task *svc(int *feedback)
     {
@@ -114,11 +151,21 @@ struct Emitter : ff_monode_t<int, task>
             {
                 tasks_received = 0;
                 tasks_sent = 0;
-                for (int j = 0; j < (int)triangles[i].size(); j++)
+                int j = 0;
+                for (j = 0; j < (int)triangles[i].size() && j < nw; j++)
                 {
                     ff_send_out(triangles[i][j]);
                     tasks_sent++;
                 }
+
+                if (triangles[i].size() > 0 && j < (int)triangles[i].size())
+                {
+                    if (triangles[i][j]->is_diag)
+                        compute_triangle(*triangles[i][j]);
+                    else
+                        compute_reversed_triangle(*triangles[i][j]);
+                }
+
                 i++;
             }
         }
@@ -131,6 +178,7 @@ struct Emitter : ff_monode_t<int, task>
     const std::vector<std::vector<triangle *>> &triangles;
     std::vector<float> &M;
     int n;
+    int nw;
     int tasks_received = 0;
     int tasks_sent = 0;
     int i = 0;
@@ -194,30 +242,29 @@ struct Worker : ff_Map<task, int>
 
 int main(int argc, char *argv[])
 {
-    if (argc < 4)
+    if (argc < 3)
     {
-        std::cout << "./" << argv[0] << " <n> <nt> <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n> <nw>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
 
     int n = atoi(argv[1]);
-    ssize_t ntriangles = atoi(argv[2]);
-    ssize_t nworkers = atoi(argv[3]);
+    ssize_t nworkers = atoi(argv[2]);
     std::vector<float> M(n * n, 1);
 
     auto start_compute = std::chrono::high_resolution_clock::now();
 
-    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, ntriangles);
+    const std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, nworkers);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<float>(m + 1) / n;
 
-    Emitter emitter(triangles, M, n);
+    Emitter emitter(triangles, M, n, nworkers - 1);
 
     std::vector<std::unique_ptr<ff::ff_node>>
         workers;
-    for (int i = 0; i < nworkers; ++i)
+    for (int i = 0; i < nworkers - 1; ++i)
         workers.push_back(std::make_unique<Worker>(n, M));
     ff::ff_Farm<int> farm(std::move(workers), emitter);
 

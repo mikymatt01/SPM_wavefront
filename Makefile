@@ -14,11 +14,11 @@ sequential:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles ./wavefront_sequential/wavefront_triangles.cpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_collapsed ./wavefront_sequential/wavefront_triangles_collapsed.cpp
 
-ff:
+fastflow:
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal_ff ./wavefront_fastflow/wavefront_diagonal_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_ff ./wavefront_fastflow/wavefront_triangles_ff.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff ./wavefront_fastflow/wavefront_triangles_map_ff.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp
+#$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff ./wavefront_fastflow/wavefront_triangles_map_ff.cpp
+#$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp
 
 squares:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
