@@ -5,9 +5,13 @@ INCLUDES	   = -I. -I./ff
 
 
 .PHONY: all clean cleanall 
+
 triangles:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o triangles  ./utils/triangles.cpp
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o triangles_collapsed  ./utils/triangles_collapsed.cpp
+
+squares:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
 
 sequential:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal  ./wavefront_sequential/wavefront_diagonal.cpp
@@ -20,12 +24,10 @@ fastflow:
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff ./wavefront_fastflow/wavefront_triangles_map_ff.cpp
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp
 
-squares:
-	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
-
 mpi:
-	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_mpi ./wavefront_mpi/wavefront_diagonal_mpi.cpp
-	mpicxx -std=c++20 -Wall -O3 -o wavefront_triangles_mpi ./wavefront_mpi/wavefront_triangles_mpi.cpp
+	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
+	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall -O3 -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
 
 mpi_triangles:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_test ./wavefront_mpi/wavefront_triangles_test.cpp

@@ -3,10 +3,10 @@ source ~/.bashrc
 
 cd ..
 
-exe="wavefront_triangles_ff"
+exe="wavefront_triangles_allg_mpi"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-RESULTS_DIR="test_fastflow/$exe/$TIMESTAMP"
+RESULTS_DIR="test_mpi/$exe/$TIMESTAMP"
 mkdir -p $RESULTS_DIR
 RESULTS_FILE="$RESULTS_DIR/wavefront_runtimes.csv"
 
@@ -16,24 +16,23 @@ N_TRIANGLES=(1 2 4 8 16 32)
 N_WORKERS=(1 2 4 8 16 32)
 
 # Iterate over all executable files
-echo "Name,Matrix size,Workers number,Map threads,Farm threads,Triangles number,Time,Value" >> $RESULTS_FILE
+echo "Name,Matrix size,Workers number,Triangles number,Time,Value" >> $RESULTS_FILE
 for n_mat in "${MATRIX_SIZES[@]}"; do
-  for n_tri in "${N_TRIANGLES[@]}"; do
     for n_w in "${N_WORKERS[@]}"; do
-      echo "Running executable: $exe, map: $n_map, farm: $n_farm, work: $n_w n_mat: $n_mat"
+      echo "Running executable: $exe work: $n_w n_mat: $n_mat"
 
-      command_output=$(./"$exe" "$n_mat" "$n_tri" "$n_w")
+      command_output=$(mpirun -np $n_w $exe $n_mat)
       time=$(echo "$command_output" | grep "time:" | awk '{print $2}')
       value=$(echo "$command_output" | grep "last:" | awk '{print $2}')
 
       if ((time != -10)); then
         echo "time: $time"
         echo "file: $RESULTS_FILE"
-        echo "$exe,$n_mat,$n_w,_,_,$n_tri,$time,$value" >> $RESULTS_FILE
+        echo "$exe,$n_mat,$n_w,$n_w,$time,$value" >> $RESULTS_FILE
       fi
       # Check if execution was successful
       if [ $? -ne 0 ]; then
-        echo "Execution failed for $exe with N_TRIANGLES=$n_tri, N_WORKERS=$n_workers, N_MAP=$n_map, N_FARM=$n_farm"
+        echo "Execution failed for $exe with N_MATRIX=$n_mat, N_TRIANGLES=$n_w, N_WORKERS=$n_w"
       fi
     done
   done

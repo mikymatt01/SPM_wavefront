@@ -4,8 +4,9 @@ source ~/.bashrc
 cd ..
 
 exe="wavefront_triangles_map_ff"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-RESULTS_DIR="test_fastflow/$exe"
+RESULTS_DIR="test_fastflow/$exe/$TIMESTAMP"
 mkdir -p $RESULTS_DIR
 RESULTS_FILE="$RESULTS_DIR/wavefront_runtimes.csv"
 

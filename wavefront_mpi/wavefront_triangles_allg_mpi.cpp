@@ -224,9 +224,9 @@ std::vector<int> check_overlapping_indices(std::vector<triangle*> triangles, int
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3)
+    if (argc < 2)
     {
-        std::cout << "./" << argv[0] << " <n> <dbr>" << std::endl;
+        std::cout << "./" << argv[0] << " <n>" << std::endl;
         return -1;
     }
     std::cout << "start execution" << std::endl;
@@ -239,7 +239,6 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
 
-    int debugrank = atoi(argv[2]);
     int n = atoi(argv[1]);
 
     std::vector<int> counts(n_processes, 0);
