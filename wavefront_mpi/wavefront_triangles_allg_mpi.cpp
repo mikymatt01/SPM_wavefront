@@ -127,7 +127,7 @@ std::vector<double> iterate_on_matrix_by_triangle(std::vector<double> &M, triang
     return values;
 }
 
-std::vector<double> iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n, int myrank, int debugrank)
+std::vector<double> iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n)
 {
     std::vector<double> values;
     for (int i = 0; i < t.size_side; i++)
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
                 if (triangles[i][j]->is_diag)
                     values = iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
                 else
-                    values = iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n, myrank, debugrank);
+                    values = iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n);
             }
 
             if (triangles[i][j]->is_diag) {

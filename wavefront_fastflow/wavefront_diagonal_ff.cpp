@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        std::cout << "./" << argv[0] << " <n>" << " <nw>" << std::endl;
+        std::cout << "./" << argv[0] << " <n> <nw>" << std::endl;
         return -1;
     }
 
