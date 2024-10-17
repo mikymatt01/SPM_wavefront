@@ -20,6 +20,7 @@ sequential:
 
 fastflow:
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal_ff ./wavefront_fastflow/wavefront_diagonal_ff.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal_pf_ff ./wavefront_fastflow/wavefront_diagonal_pf_ff.cpp
 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_ff ./wavefront_fastflow/wavefront_triangles_ff.cpp
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff ./wavefront_fastflow/wavefront_triangles_map_ff.cpp
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp

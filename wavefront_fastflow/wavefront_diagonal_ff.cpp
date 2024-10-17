@@ -60,7 +60,7 @@ struct Emitter : ff_monode_t<int, task>
     Emitter(int _n, int _nw, std::vector<ff_node *> &w, std::vector<float> &_M)
         : n(_n), nw(_nw), workers(w), M(_M) {}
 
-    void compute_diag(int start, int count, int k) {
+    inline void compute_diag(int start, int count, int k) {
         for (int i = start; i < start + count; i++)
         {
             double res = 0.0;
@@ -80,12 +80,12 @@ struct Emitter : ff_monode_t<int, task>
             tasks_received++;
             delete feedback;
         }
-        if (n - k < nw && n - k != 0)
+        /*if (n - k < nw && n - k != 0)
         {
             nw = n - k;
             for (int i = 0; i < nw - (n - k); i++)
                 workers[i]->svc_end();
-        }
+        }*/
 
         if (k < n && tasks_received == tasks_sent)
         {
