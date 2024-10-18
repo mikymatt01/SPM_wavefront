@@ -26,9 +26,9 @@ fastflow:
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp
 
 mpi:
-	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
-	mpicxx -std=c++20 -Wall -O3 -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
-	mpicxx -std=c++20 -Wall -O3 -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
 
 mpi_triangles:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_test ./wavefront_mpi/wavefront_triangles_test.cpp

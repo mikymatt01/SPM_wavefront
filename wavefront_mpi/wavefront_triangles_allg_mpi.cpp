@@ -322,8 +322,8 @@ int main(int argc, char *argv[])
     {
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
         std::cout << "time: " << duration.count() << std::endl;
-        std::cout << "end execution" << std::endl;
         std::cout << "last: " << M[n - 1] << std::endl;
+        std::cout << "end execution" << std::endl;
     }
     MPI_Finalize();
     return 0;
