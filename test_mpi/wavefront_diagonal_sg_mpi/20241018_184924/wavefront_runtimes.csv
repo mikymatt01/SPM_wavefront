@@ -1,0 +1,14 @@
+Name,Matrix size,Workers number,Time,Value
+wavefront_diagonal_sg_mpi,2048,1,40949,680.244
+wavefront_diagonal_sg_mpi,2048,2,31249,680.244
+wavefront_diagonal_sg_mpi,2048,4,22963,680.244
+wavefront_diagonal_sg_mpi,2048,8,17347,680.244
+wavefront_diagonal_sg_mpi,2048,16,16101,680.244
+wavefront_diagonal_sg_mpi,2048,32,17315,680.244
+wavefront_diagonal_sg_mpi,2896,2,92845,962.795
+wavefront_diagonal_sg_mpi,2896,4,70175,962.795
+wavefront_diagonal_sg_mpi,2896,8,58199,962.795
+wavefront_diagonal_sg_mpi,2896,16,47717,962.795
+wavefront_diagonal_sg_mpi,2896,32,50053,962.795
+wavefront_diagonal_sg_mpi,4096,1,369292,1362.68
+wavefront_diagonal_sg_mpi,4096,2,276593,1362.68

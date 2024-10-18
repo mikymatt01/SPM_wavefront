@@ -1,0 +1,14 @@
+Name,Matrix size,Workers number,Triangles number,Time,Value
+wavefront_triangles_allg_mpi,2048,1,1,1563,680.244
+wavefront_triangles_allg_mpi,2048,2,2,1362,680.244
+wavefront_triangles_allg_mpi,2048,4,4,933,552.954
+wavefront_triangles_allg_mpi,2048,8,8,552,386.803
+wavefront_triangles_allg_mpi,2048,16,16,345,260.941
+wavefront_triangles_allg_mpi,2048,32,32,307,174.307
+wavefront_triangles_allg_mpi,2896,1,1,5048,962.795
+wavefront_triangles_allg_mpi,2896,2,2,4253,962.795
+wavefront_triangles_allg_mpi,2896,4,4,2761,782.775
+wavefront_triangles_allg_mpi,2896,8,8,1709,548.031
+wavefront_triangles_allg_mpi,2896,16,16,1051,370.296
+wavefront_triangles_allg_mpi,2896,32,32,863,248.132
+wavefront_triangles_allg_mpi,4096,1,1,14404,1362.68
