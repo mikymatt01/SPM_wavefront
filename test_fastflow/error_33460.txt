@@ -1,0 +1,15 @@
+srun: error: node01: task 0: Exited with exit code 255
+ERROR: FARM: wrong number of workers
+Error running the farm
+srun: error: node01: task 0: Exited with exit code 255
+ERROR: FARM: wrong number of workers
+Error running the farm
+ERROR: FARM: wrong number of workers
+Error running the farm
+srun: error: node01: task 0: Exited with exit code 255
+ERROR: FARM: wrong number of workers
+Error running the farm
+srun: error: node01: task 0: Exited with exit code 255
+ERROR: FARM: wrong number of workers
+Error running the farm
+srun: error: node01: task 0: Exited with exit code 255

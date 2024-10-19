@@ -21,7 +21,7 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
     for n_w in "${N_WORKERS[@]}"; do
       echo "Running executable: $exe, work: $n_w n_mat: $n_mat n_tri: $n_w"
 
-      command_output=$(./"$exe" "$n_mat" "$n_w")
+      command_output=$(srun "$exe" "$n_mat" "$n_w")
       time=$(echo "$command_output" | grep "time:" | awk '{print $2}')
       value=$(echo "$command_output" | grep "last:" | awk '{print $2}')
 

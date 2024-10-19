@@ -1,0 +1,90 @@
+Running executable: wavefront_triangles_ff, work: 1 n_mat: 2048 n_tri: 1
+time: 
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 2 n_mat: 2048 n_tri: 2
+time: 823
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 4 n_mat: 2048 n_tri: 4
+time: 614
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 8 n_mat: 2048 n_tri: 8
+time: 856
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 16 n_mat: 2048 n_tri: 16
+time: 1651
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 32 n_mat: 2048 n_tri: 32
+time: 9171
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 1 n_mat: 2896 n_tri: 1
+time: 
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 2 n_mat: 2896 n_tri: 2
+time: 2114
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 4 n_mat: 2896 n_tri: 4
+time: 1164
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 8 n_mat: 2896 n_tri: 8
+time: 1087
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 16 n_mat: 2896 n_tri: 16
+time: 1873
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 32 n_mat: 2896 n_tri: 32
+time: 9785
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 1 n_mat: 4096 n_tri: 1
+time: 
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 2 n_mat: 4096 n_tri: 2
+time: 6736
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 4 n_mat: 4096 n_tri: 4
+time: 3578
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 8 n_mat: 4096 n_tri: 8
+time: 1990
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 16 n_mat: 4096 n_tri: 16
+time: 2495
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 32 n_mat: 4096 n_tri: 32
+time: 10384
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 1 n_mat: 5793 n_tri: 1
+time: 
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 2 n_mat: 5793 n_tri: 2
+time: 19519
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 4 n_mat: 5793 n_tri: 4
+time: 9327
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 8 n_mat: 5793 n_tri: 8
+time: 4816
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 16 n_mat: 5793 n_tri: 16
+time: 5144
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 32 n_mat: 5793 n_tri: 32
+time: 12008
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 1 n_mat: 8192 n_tri: 1
+time: 
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 2 n_mat: 8192 n_tri: 2
+time: 55239
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 4 n_mat: 8192 n_tri: 4
+time: 25919
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 8 n_mat: 8192 n_tri: 8
+time: 14871
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 16 n_mat: 8192 n_tri: 16
+time: 15327
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv
+Running executable: wavefront_triangles_ff, work: 32 n_mat: 8192 n_tri: 32
+time: 20709
+file: test_fastflow/wavefront_triangles_ff/20241019_215007/wavefront_runtimes.csv

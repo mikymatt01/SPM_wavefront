@@ -1,0 +1,52 @@
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 1
+start execution
+time: 41079
+last: 680.244
+end execution
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 2
+start execution
+start execution
+time: 30984
+last: 680.244
+end execution
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 4
+start execution
+start execution
+start execution
+start execution
+time: 22913
+last: 680.244
+end execution
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 8
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+time: 17406
+last: 680.244
+end execution
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 16
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+start execution
+time: 16094
+last: 680.244
+end execution
+Running executable: wavefront_diagonal_sg_mpi n_mat: 2048 work: 32

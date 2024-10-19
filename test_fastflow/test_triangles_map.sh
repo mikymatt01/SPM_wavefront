@@ -29,7 +29,7 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
             echo "Running executable: $exe, map: $n_map, farm: $n_farm, work: $n_w n_mat: $n_mat"
             time=-10
             if (( n_map * n_farm == n_w)); then
-              command_output=$(./"$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm")
+              command_output=$(srun "$exe" "$n_mat" "$n_tri" "$n_map" "$n_farm")
               time=$(echo "$command_output" | grep "time:" | awk '{print $2}')
               value=$(echo "$command_output" | grep "last:" | awk '{print $2}')
             fi

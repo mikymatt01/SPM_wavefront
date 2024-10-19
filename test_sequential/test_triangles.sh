@@ -20,15 +20,11 @@ for n_mat in "${MATRIX_SIZES[@]}"; do
   for n_tri in "${N_TRIANGLES[@]}"; do
       echo "Running executable: $exe, n_mat: $n_mat, n_tri: $n_tri"
 
-      command_output=$(./"$exe" "$n_mat" "$n_tri")
+      command_output=$(srun "$exe" "$n_mat" "$n_tri")
       time=$(echo "$command_output" | grep "time:" | awk '{print $2}')
       value=$(echo "$command_output" | grep "last:" | awk '{print $2}')
 
-      if ((time != -10)); then
-        echo "time: $time"
-        echo "file: $RESULTS_FILE"
-        echo "$exe,$n_mat,$n_tri,$time,$value" >> $RESULTS_FILE
-      fi
+      echo "$exe,$n_mat,$n_tri,$time,$value" >> $RESULTS_FILE
       # Check if execution was successful
       if [ $? -ne 0 ]; then
         echo "Execution failed for $exe with N_MATRIX=$n_mat and N_TRIANGLES=$n_tri"

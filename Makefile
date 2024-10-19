@@ -1,6 +1,5 @@
 CXX                = g++ -std=c++20
-OPTFLAGS	   = -O3 -march=native -ffast-math -ftree-vectorize #-fopt-info-vec-missed
-OPTFLAGSMPI    = -O3 -ffast-math -ftree-vectorize
+OPTFLAGS	   = -O3 -ffast-math -ftree-vectorize #-fopt-info-vec-missed
 CXXFLAGS          += -Wall
 INCLUDES	   = -I. -I./ff
 
@@ -27,9 +26,10 @@ fastflow:
 #$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_map_ff_comm ./wavefront_fastflow/wavefront_triangles_map_ff_comm.cpp
 
 mpi:
-	mpicxx -std=c++20 -Wall $(OPTFLAGSMPI) -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
-	mpicxx -std=c++20 -Wall $(OPTFLAGSMPI) -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
-	mpicxx -std=c++20 -Wall $(OPTFLAGSMPI) -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_allg_group_mpi ./wavefront_mpi/wavefront_diagonal_allg_group_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
 
 mpi_triangles:
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_test ./wavefront_mpi/wavefront_triangles_test.cpp
