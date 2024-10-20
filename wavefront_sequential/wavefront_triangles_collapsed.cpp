@@ -116,59 +116,56 @@ void printArray(std::vector<float> x, int n)
 
 void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
 {
-    if (t.is_diag)
+    int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
+    int n_s = t.size_side;
+    int n_d = t.size_side;
+    int j = t.start_index;
+    int step = 0;
+    for (int i_t = 0; i_t < n_t; i_t++)
     {
-        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
-        int n_s = t.size_side;
-        int n_d = t.size_side;
-        int j = t.start_index;
-        int step = 0;
-        for (int i_t = 0; i_t < n_t; i_t++)
+        int row = std::floor((float)j / n);
+        int col = j % n;
+        double res = 0.0;
+        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
         {
-            int row = std::floor((float)j / n);
-            int col = j % n;
-            double res = 0.0;
-            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-            {
-                res += M[start_row] * M[start_col];
-            }
-            res = cbrt(res);
-            M[j] = res;
-            M[col * n + row] = res;
-
-            step = std::floor(float(i_t + 1) / n_s) == 1 ? step + 1 : step;
-            n_d = std::floor(float(i_t + 1) / n_s) == 1 ? n_d - 1 : n_d;
-            j = std::floor(float(i_t + 1) / n_s) == 1 ? t.start_index + step : j + n + 1;
-            n_s = std::floor(float(i_t + 1) / n_s) == 1 ? n_s + n_d : n_s;
+            res += M[start_row] * M[start_col];
         }
+        res = cbrt(res);
+        M[j] = res;
+        M[col * n + row] = res;
+
+        step = std::floor(float(i_t + 1) / n_s) == 1 ? step + 1 : step;
+        n_d = std::floor(float(i_t + 1) / n_s) == 1 ? n_d - 1 : n_d;
+        j = std::floor(float(i_t + 1) / n_s) == 1 ? t.start_index + step : j + n + 1;
+        n_s = std::floor(float(i_t + 1) / n_s) == 1 ? n_s + n_d : n_s;
     }
+}
 
-    if (!t.is_diag)
+void iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n)
+{
+    int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
+    int i_d = 1;
+    int d = 1;
+    int j = t.start_index;
+    int step = 0;
+    for (int i_t = 0; i_t < n_t && j < std::ceil((float)t.start_index / n) * n; i_t++)
     {
-        int n_t = std::floor((float)((t.size_side * t.size_side) / 2)) + std::ceil((float)t.size_side / 2);
-        int i_d = 1;
-        int d = 1;
-        int j = t.start_index;
-        int step = 0;
-        for (int i_t = 0; i_t < n_t && j < std::ceil((float)t.start_index / n) * n; i_t++)
+        int row = std::floor((float)j / n);
+        int col = j % n;
+        double res = 0.0;
+        for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
         {
-            int row = std::floor((float)j / n);
-            int col = j % n;
-            double res = 0.0;
-            for (int start_row = n * row + row, start_col = n * (j - start_row) + j; start_row < j; ++start_row, --start_col)
-            {
-                res += M[start_row] * M[start_col];
-            }
-            res = cbrt(res);
-            M[j] = res;
-            M[col * n + row] = res;
-
-            i_d -= 1;
-            step = i_d == 0 ? step + 1 : step;
-            j = i_d == 0 ? t.start_index - (n * step) : j + n + 1;
-            d = i_d == 0 ? d + 1 : d;
-            i_d = i_d == 0 ? d : i_d;
+            res += M[start_row] * M[start_col];
         }
+        res = cbrt(res);
+        M[j] = res;
+        M[col * n + row] = res;
+
+        i_d -= 1;
+        step = i_d == 0 ? step + 1 : step;
+        j = i_d == 0 ? t.start_index - (n * step) : j + n + 1;
+        d = i_d == 0 ? d + 1 : d;
+        i_d = i_d == 0 ? d : i_d;
     }
 }
 
@@ -195,7 +192,10 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
-            iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            if (*triangles[i][j]->is_diag) 
+                iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
+            else
+                iterate_on_matrix_by_reversed_triangle(M, *triangles[i][j], n);
             delete triangles[i][j];
             triangles[i][j] = nullptr;
         }
