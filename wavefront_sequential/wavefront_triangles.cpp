@@ -44,6 +44,9 @@ inline int max(int a, int b)
 std::vector<std::vector<triangle *>>
 divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
 {
+    /* This function divide the upper triangular matrix in triangles given a number of triangles
+    that we want on the main diagonal. The return field is vector of vectors because we can have
+    the indipendent triangles between them in the same vector. */
     std::vector<std::vector<triangle *>> triangles;
     std::vector<triangle *> triangles_straight;
     std::vector<triangle *> triangles_reversed;
@@ -58,6 +61,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
 
         for (int i_triangle = 0; i_triangle < n_straight_triangles; i_triangle++)
         {
+            /* We compute the straight triangles */
             triangle *a = (triangle *)malloc(sizeof(triangle));
             a->start_index = start_index;
             a->size_side = remainder > 0 ? quotient + 1 : quotient;
@@ -75,6 +79,7 @@ divide_upper_matrix_into_triangles(std::vector<double> M, int n, int nw)
 
         for (int i_triangle = 0; i_triangle < n_straight_triangles - 1; ++i_triangle)
         {
+            /* We compute the reversed triangles given the straight ones */
             triangle *a = (triangle *)malloc(sizeof(triangle));
             if (i_triangle == 0)
                 a->size_side = min(triangles_straight[i_triangle]->size_side, triangles_straight[i_triangle + 1]->size_side);
@@ -114,6 +119,7 @@ void printArray(std::vector<double> x, int n)
 
 void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
 {
+    /* This function compute elements in the matrix given straight triangles (is_diag = true) */
     for (int i = 0; i < t.size_side; i++)
     {
         int end_cicle = (t.size_side * n + t.size_side) + t.start_index - (n * i);
@@ -133,6 +139,7 @@ void iterate_on_matrix_by_triangle(std::vector<double> &M, triangle t, int n)
 
 void iterate_on_matrix_by_reversed_triangle(std::vector<double> &M, triangle t, int n)
 {
+    /* This function compute elements in the matrix given reversed triangles (is_diag = false) */
     for (int i = 0; i < t.size_side; i++)
     {
         int j = t.start_index - (i * n);
@@ -165,14 +172,17 @@ int main(int argc, char *argv[])
     auto start_compute = std::chrono::high_resolution_clock::now();
     std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(M, n, ntriangles);
 
+    // initialize the major diagonal e^0_{m,m} with (m+1)/n
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
 
+    // for each vector of independent triangles
     for (int i = 0; i < (int)triangles.size(); i++)
     {
+        // for each triangle
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
-            printTriangle(*triangles[i][j]);
+            // compute the matrix elements
             if (triangles[i][j]->is_diag)
                 iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
             else

@@ -33,9 +33,7 @@ int main(int argc, char *argv[])
     int n = atoi(argv[1]);
     std::vector<double> M(n * n, 1);
 
-    // start to track the execution time
     auto start = std::chrono::high_resolution_clock::now();
-
     // initialize the major diagonal e^0_{m,m} with (m+1)/n
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
@@ -61,8 +59,6 @@ int main(int argc, char *argv[])
             M[(i + k) * n + i] = res;
         }
     }
-
-    // end to track the execution time
     auto end = std::chrono::high_resolution_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
