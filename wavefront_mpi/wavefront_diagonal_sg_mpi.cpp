@@ -122,9 +122,10 @@ int main(int argc, char *argv[])
 
     MPI_Init(&argc, &argv);
 
-    int n_processes;
-    int myrank;
+    int n_processes, n_processes_group, myrank, my_rank_group, my_size_group;
+    MPI_Group world_group;
 
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
 
@@ -138,8 +139,8 @@ int main(int argc, char *argv[])
     std::vector<double> M;
     if (!myrank)
         M.resize(n * n);
-    std::vector<double> values;
 
+    std::vector<double> values;
     int start_index = 0;
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -153,45 +154,72 @@ int main(int argc, char *argv[])
     std::vector<double> global_values;
     std::vector<double> global_dependences;
     std::vector<double> partial;
+    std::vector<double> dependences;
     int send_displ;
-
+   
     for (int k = 1; k < n; k++)
     {
+        n_processes_group = n_processes;
+        if (n - k < n_processes)
+            n_processes_group = n - k;
+
+        std::vector<int> ranks_group;
+        for (int i = 0; i < n_processes_group; i++)
+            ranks_group.push_back(i);
+
+        MPI_Group new_group;
+        MPI_Comm new_comm;
+
+        MPI_Group_incl(world_group, n_processes_group, ranks_group.data(), &new_group);
+        MPI_Comm_create(MPI_COMM_WORLD, new_group, &new_comm);
+        MPI_Group_rank(new_group, &my_rank_group);
+        MPI_Group_size(new_group, &n_processes_group);
+
+        if (my_rank_group < 0)
+            continue;
+
+        send_counts.resize(n_processes_group);
+        send_displs.resize(n_processes_group);
+
+        counts.resize(n_processes_group);
+        displs.resize(n_processes_group);
+
         global_values.resize(n - k + 1);
         global_dependences.clear();
         start_index = k;
         send_displ = 0;
 
-        divide_job_into_parts(n - k, displs, counts, n_processes);
+        divide_job_into_parts(n - k, displs, counts, n_processes_group);
 
-        for (int rank = 0; rank < n_processes; rank++)
+        for (int rank = 0; rank < n_processes_group; rank++)
         {
             send_counts[rank] = counts[rank] * k * 2;
             send_displs[rank] = send_displ;
             send_displ += send_counts[rank];
         }
 
-        if (!myrank)
-            for (int rank = 0; rank < n_processes; rank++)
+        if (!my_rank_group)
+            for (int rank = 0; rank < n_processes_group; rank++)
             {
                 partial = find_diagonal_dependences(M, n, start_index, counts[rank]);
                 start_index += (counts[rank] * n + counts[rank]);
                 global_dependences.insert(global_dependences.end(), partial.begin(), partial.end());
             }
+        
+        dependences.resize(send_counts[my_rank_group]);
 
-        std::vector<double> dependences(send_counts[myrank]);
         MPI_Scatterv(
             global_dependences.data(),
             send_counts.data(),
             send_displs.data(),
             MPI_DOUBLE,
             dependences.data(),
-            send_counts[myrank],
+            send_counts[my_rank_group],
             MPI_DOUBLE,
             0,
-            MPI_COMM_WORLD);
+            new_comm);
 
-        values = compute_diagonal_using_dependences(n, counts[myrank], dependences);
+        values = compute_diagonal_using_dependences(n, counts[my_rank_group], dependences);
 
         MPI_Gatherv(
             values.data(),
@@ -202,15 +230,21 @@ int main(int argc, char *argv[])
             displs.data(),
             MPI_DOUBLE,
             0,
-            MPI_COMM_WORLD);
+            new_comm);
 
-        if (!myrank)
+        if (!my_rank_group)
         {
             for (int i = 0; i < n - k; i += 1)
             {
                 M[i * n + i + k] = global_values[i];
                 M[(i + k) * n + i] = global_values[i];
             }
+        }
+
+        if (new_comm != MPI_COMM_NULL)
+        {
+            MPI_Comm_free(&new_comm);
+            MPI_Group_free(&new_group);
         }
     }
     auto end = std::chrono::high_resolution_clock::now();

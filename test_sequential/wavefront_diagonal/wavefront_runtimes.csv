@@ -1,6 +1,0 @@
-Name,Matrix size,Time,Value
-wavefront_diagonal,2048,2009,680.244
-wavefront_diagonal,2896,6602,962.795
-wavefront_diagonal,4096,16291,1362.68
-wavefront_diagonal,5793,45504,1928.23
-wavefront_diagonal,8192,121431,2727.78

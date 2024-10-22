@@ -1,0 +1,25 @@
+Name,Matrix size,Workers number,Time,Value
+wavefront_diagonal_sg_mpi,2048,1,34421,680.244
+wavefront_diagonal_sg_mpi,2048,2,29540,680.244
+wavefront_diagonal_sg_mpi,2048,4,22027,680.244
+wavefront_diagonal_sg_mpi,2048,8,17031,680.244
+wavefront_diagonal_sg_mpi,2048,16,16321,680.244
+wavefront_diagonal_sg_mpi,2048,32,17662,680.244
+wavefront_diagonal_sg_mpi,2896,1,102037,962.795
+wavefront_diagonal_sg_mpi,2896,2,83718,962.795
+wavefront_diagonal_sg_mpi,2896,4,65292,962.795
+wavefront_diagonal_sg_mpi,2896,8,55598,962.795
+wavefront_diagonal_sg_mpi,2896,16,46724,962.795
+wavefront_diagonal_sg_mpi,2896,32,50274,962.795
+wavefront_diagonal_sg_mpi,4096,1,313320,1362.68
+wavefront_diagonal_sg_mpi,4096,2,245482,1362.68
+wavefront_diagonal_sg_mpi,4096,4,194818,1362.68
+wavefront_diagonal_sg_mpi,4096,8,168630,1362.68
+wavefront_diagonal_sg_mpi,4096,16,151647,1362.68
+wavefront_diagonal_sg_mpi,4096,32,139041,1362.68
+wavefront_diagonal_sg_mpi,5793,1,886789,1928.23
+wavefront_diagonal_sg_mpi,5793,2,772982,1928.23
+wavefront_diagonal_sg_mpi,5793,4,587657,1928.23
+wavefront_diagonal_sg_mpi,5793,8,517379,1928.23
+wavefront_diagonal_sg_mpi,5793,16,455526,1928.23
+wavefront_diagonal_sg_mpi,5793,32,443038,1928.23

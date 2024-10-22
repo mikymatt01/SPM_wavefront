@@ -1,6 +1,0 @@
-Name,Matrix size,Workers number,Time,Value
-wavefront_diagonal_sg_mpi,2048,1,41079,680.244
-wavefront_diagonal_sg_mpi,2048,2,30984,680.244
-wavefront_diagonal_sg_mpi,2048,4,22913,680.244
-wavefront_diagonal_sg_mpi,2048,8,17406,680.244
-wavefront_diagonal_sg_mpi,2048,16,16094,680.244

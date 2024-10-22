@@ -233,9 +233,10 @@ int main(int argc, char *argv[])
 
     MPI_Init(&argc, &argv);
 
-    int n_processes;
-    int myrank;
+    int n_processes, n_processes_group, myrank, my_rank_group, my_size_group;
+    MPI_Group world_group;
 
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
 
@@ -250,8 +251,8 @@ int main(int argc, char *argv[])
     int displ = 0;
 
     auto start_time = std::chrono::high_resolution_clock::now();
-    //if (!myrank)
-        std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, n_processes);
+
+    std::vector<std::vector<triangle *>> triangles = divide_upper_matrix_into_triangles(n, n_processes);
 
     for (int m = 0; m < n; m++)
         M[m * n + m] = static_cast<double>(m + 1) / n;
@@ -259,10 +260,33 @@ int main(int argc, char *argv[])
     int cycle = 0;
     for (int i = 0; i < (int)triangles.size(); i++, cycle++)
     {
+        n_processes_group = n_processes;
+        if (triangles[i].size() < n_processes)
+            n_processes_group = triangles[i].size();
+
+        std::vector<int> ranks_group;
+        for (int i = 0; i < n_processes_group; i++)
+            ranks_group.push_back(i);
+
+        MPI_Group new_group;
+        MPI_Comm new_comm;
+
+        MPI_Group_incl(world_group, n_processes_group, ranks_group.data(), &new_group);
+        MPI_Comm_create(MPI_COMM_WORLD, new_group, &new_comm);
+        MPI_Group_rank(new_group, &my_rank_group);
+        MPI_Group_size(new_group, &n_processes_group);
+
+        if (my_rank_group < 0)
+            continue;
+
+        counts.resize(n_processes_group);
+        displs.resize(n_processes_group);
+
         displ = 0;
         values.clear();
 
-        for (int j = 0; j < n_processes; j++) {
+        for (int j = 0; j < n_processes_group; j++)
+        {
             counts[j] = 0;
             displs[j] = 0;
         }
@@ -272,7 +296,7 @@ int main(int argc, char *argv[])
 
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
-            if (myrank == j)
+            if (my_rank_group == j)
             {
                 if (triangles[i][j]->is_diag)
                     values = iterate_on_matrix_by_triangle(M, *triangles[i][j], n);
@@ -293,9 +317,9 @@ int main(int argc, char *argv[])
         global_values.resize(displ);
 
         MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
-                        global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
-                        MPI_COMM_WORLD);
-    
+                       global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
+                       new_comm);
+
         for (int j = 0; j < (int)triangles[i].size(); j++)
         {
             values = get_subarray(global_values, displs[j], counts[j]);
@@ -313,6 +337,12 @@ int main(int argc, char *argv[])
             res = cbrt(res);
             M[j] = res;
             M[col * n + row] = res;
+        }
+
+        if (new_comm != MPI_COMM_NULL)
+        {
+            MPI_Comm_free(&new_comm);
+            MPI_Group_free(&new_group);
         }
     }
 

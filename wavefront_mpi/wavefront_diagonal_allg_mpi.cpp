@@ -47,9 +47,10 @@ int main(int argc, char *argv[])
 
     MPI_Init(&argc, &argv);
 
-    int n_processes;
-    int myrank;
+    int n_processes, n_processes_group, myrank, my_rank_group;
+    MPI_Group world_group;
 
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &n_processes);
 
@@ -66,12 +67,34 @@ int main(int argc, char *argv[])
 
     for (int k = 1; k < n; k++)
     {
+        n_processes_group = n_processes;
+        if (n - k < n_processes)
+            n_processes_group = n - k;
+
+        std::vector<int> ranks_group;
+        for (int i = 0; i < n_processes_group; i++)
+            ranks_group.push_back(i);
+
+        MPI_Group new_group;
+        MPI_Comm new_comm;
+
+        MPI_Group_incl(world_group, n_processes_group, ranks_group.data(), &new_group);
+        MPI_Comm_create(MPI_COMM_WORLD, new_group, &new_comm);
+        MPI_Group_rank(new_group, &my_rank_group);
+        MPI_Group_size(new_group, &n_processes_group);
+
+        if (my_rank_group < 0)
+            continue;
+
+        counts.resize(n_processes_group);
+        displs.resize(n_processes_group);
+        
         std::vector<double> values;
         std::vector<double> global_values(n - k + 1);
 
-        divide_job_into_parts(n - k, displs, counts, n_processes);
+        divide_job_into_parts(n - k, displs, counts, n_processes_group);
 
-        for (int i = displs[myrank]; i < displs[myrank] + counts[myrank]; i++)
+        for (int i = displs[my_rank_group]; i < displs[my_rank_group] + counts[my_rank_group]; i++)
         {
             double value = 0.0;
             for (int t = 0; t < k; ++t)
@@ -82,12 +105,18 @@ int main(int argc, char *argv[])
 
         MPI_Allgatherv(values.data(), values.size(), MPI_DOUBLE,
                        global_values.data(), counts.data(), displs.data(), MPI_DOUBLE,
-                       MPI_COMM_WORLD);
+                       new_comm);
 
         for (int i = 0; i < n - k; i += 1)
         {
             M[i * n + i + k] = global_values[i];
             M[(i + k) * n + i] = global_values[i];
+        }
+
+        if (new_comm != MPI_COMM_NULL)
+        {
+            MPI_Comm_free(&new_comm);
+            MPI_Group_free(&new_group);
         }
     }
     auto end = std::chrono::high_resolution_clock::now();

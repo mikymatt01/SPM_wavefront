@@ -1,2 +1,0 @@
-test_triangles_allg.sh: line 39: syntax error near unexpected token `done'
-test_triangles_allg.sh: line 39: `done'
