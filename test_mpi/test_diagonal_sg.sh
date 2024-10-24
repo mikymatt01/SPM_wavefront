@@ -11,7 +11,7 @@ mkdir -p $RESULTS_DIR
 RESULTS_FILE="$RESULTS_DIR/wavefront_runtimes.csv"
 
 # Define the arrays
-MATRIX_SIZES=(2048 2896 4096 5793 8192)
+MATRIX_SIZES=(1024 1448 2048 2896 4096 5793)
 N_WORKERS=(1 2 4 8 16 32)
 
 # Iterate over all executable files
