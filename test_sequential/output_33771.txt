@@ -1,0 +1,30 @@
+Running executable: wavefront_diagonal, n_mat: 1024
+start execution
+time: 174
+end execution
+last: 339.143
+Running executable: wavefront_diagonal, n_mat: 1448
+start execution
+time: 459
+end execution
+last: 480.36
+Running executable: wavefront_diagonal, n_mat: 2048
+start execution
+time: 1420
+end execution
+last: 680.244
+Running executable: wavefront_diagonal, n_mat: 2896
+start execution
+time: 5299
+end execution
+last: 962.795
+Running executable: wavefront_diagonal, n_mat: 4096
+start execution
+time: 13861
+end execution
+last: 1362.68
+Running executable: wavefront_diagonal, n_mat: 5793
+start execution
+time: 39135
+end execution
+last: 1928.23

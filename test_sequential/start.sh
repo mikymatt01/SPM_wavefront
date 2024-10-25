@@ -7,4 +7,4 @@
 #SBATCH --requeue                   # Requeue job in case of failure
 
 # Run your shell script
-sh test_triangles_collapsed.sh
+sh test_triangles.sh
