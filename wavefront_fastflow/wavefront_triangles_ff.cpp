@@ -119,6 +119,19 @@ struct Emitter : ff_monode_t<int, task>
         }
     }
 
+    std::vector<int> check_overlapping_indices(std::vector<triangle *> triangles, int n)
+    {
+        std::vector<int> indices;
+        for (int i = 0; i < triangles.size() - 1; i++)
+        {
+            int upper_triangle_i = triangles[i]->start_index + triangles[i]->size_side;
+            int lower_triangle_i = triangles[i + 1]->start_index + (triangles[i + 1]->size_side * n);
+            if (upper_triangle_i == lower_triangle_i)
+                indices.push_back(upper_triangle_i);
+        }
+        return indices;
+    }
+
     void compute_reversed_triangle(triangle t)
     {
         for (int i = 0; i < t.size_side; i++)
@@ -144,6 +157,7 @@ struct Emitter : ff_monode_t<int, task>
             tasks_received++;
             delete feedback;
         }
+        std::vector<int> overlapping_indices;
 
         if (i < (int)triangles.size())
         {
@@ -166,6 +180,19 @@ struct Emitter : ff_monode_t<int, task>
                         compute_reversed_triangle(*triangles[i][j]);
                 }
 
+                if ((int)triangles[i].size() > 0 && (int)triangles[i][0]->is_diag == false)
+                    overlapping_indices = check_overlapping_indices(triangles[i], n);
+
+                for (int j = 0; j < overlapping_indices.size(); j++)
+                {
+                    double res = 0.0;
+                    int row = j / n, col = j % n;
+                    for (int start_row = n * row + row, start_col = (n * (j - start_row)) + j; start_row < j; ++start_row, --start_col)
+                        res += M[start_row] * M[start_col];
+                    res = cbrt(res);
+                    M[j] = res;
+                    M[col * n + row] = res;
+                }
                 i++;
             }
         }
