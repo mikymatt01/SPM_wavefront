@@ -32,6 +32,16 @@ squares:
 
 all: sequential fastflow mpi
 
-clean: 
-	-rm -fr *.o wavefront wavefront_ff wavefront_mpi triangles
-	-rm -dr tests
+clean_mpi:
+	rm wavefront_diagonal_sg_mpi wavefront_diagonal_allg_mpi wavefront_triangles_allg_mpi
+
+clean_fastflow:
+	rm wavefront_diagonal_ff wavefront_triangles_ff
+
+clean_sequential:
+	rm wavefront_diagonal wavefront_triangles wavefront_triangles_collapsed
+
+clean:
+	rm wavefront_diagonal_sg_mpi wavefront_diagonal_allg_mpi wavefront_triangles_allg_mpi
+	rm wavefront_diagonal_ff wavefront_triangles_ff
+	rm wavefront_diagonal wavefront_triangles wavefront_triangles_collapsed
