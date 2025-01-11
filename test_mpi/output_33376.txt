@@ -1,0 +1,90 @@
+Running executable: wavefront_triangles_allg_mpi work: 1 n_mat: 2048
+time: 1625
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 2 n_mat: 2048
+time: 1429
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 4 n_mat: 2048
+time: 983
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 8 n_mat: 2048
+time: 611
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 16 n_mat: 2048
+time: 377
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 32 n_mat: 2048
+time: 422
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 1 n_mat: 2896
+time: 5382
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 2 n_mat: 2896
+time: 4437
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 4 n_mat: 2896
+time: 2947
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 8 n_mat: 2896
+time: 1882
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 16 n_mat: 2896
+time: 1229
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 32 n_mat: 2896
+time: 1346
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 1 n_mat: 4096
+time: 15405
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 2 n_mat: 4096
+time: 13897
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 4 n_mat: 4096
+time: 9617
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 8 n_mat: 4096
+time: 6276
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 16 n_mat: 4096
+time: 4379
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 32 n_mat: 4096
+time: 4980
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 1 n_mat: 5793
+time: 43858
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 2 n_mat: 5793
+time: 39375
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 4 n_mat: 5793
+time: 27862
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 8 n_mat: 5793
+time: 18460
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 16 n_mat: 5793
+time: 12911
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 32 n_mat: 5793
+time: 12946
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 1 n_mat: 8192
+time: 118652
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 2 n_mat: 8192
+time: 107115
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 4 n_mat: 8192
+time: 76279
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 8 n_mat: 8192
+time: 51109
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 16 n_mat: 8192
+time: 36489
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv
+Running executable: wavefront_triangles_allg_mpi work: 32 n_mat: 8192
+time: 33332
+file: test_mpi/wavefront_triangles_allg_mpi/20241018_185514/wavefront_runtimes.csv

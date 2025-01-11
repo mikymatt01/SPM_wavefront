@@ -1,20 +1,47 @@
 CXX                = g++ -std=c++20
-OPTFLAGS	   = -O3 -march=native -ffast-math
-CXXFLAGS          += -Wall 
+OPTFLAGS	   = -O3 -ffast-math -ftree-vectorize #-fopt-info-vec-missed
+CXXFLAGS          += -Wall
 INCLUDES	   = -I. -I./ff
+
 
 .PHONY: all clean cleanall 
 
-sequential: wavefront.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront wavefront.cpp
+sequential:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal  ./wavefront_sequential/wavefront_diagonal.cpp
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles ./wavefront_sequential/wavefront_triangles.cpp
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_collapsed ./wavefront_sequential/wavefront_triangles_collapsed.cpp
 
-fastflow: wavefront_ff.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_ff wavefront_ff.cpp
+fastflow:
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_diagonal_ff ./wavefront_fastflow/wavefront_diagonal_ff.cpp
+	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_ff ./wavefront_fastflow/wavefront_triangles_ff.cpp
 
-mpi: wavefront_mpi.cpp
-	mpicxx -Wall -O3 wavefront_mpi.cpp -o wavefront_mpi
+mpi:
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_sg_mpi ./wavefront_mpi/wavefront_diagonal_sg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_diagonal_allg_mpi ./wavefront_mpi/wavefront_diagonal_allg_mpi.cpp
+	mpicxx -std=c++20 -Wall $(OPTFLAGS) -o wavefront_triangles_allg_mpi ./wavefront_mpi/wavefront_triangles_allg_mpi.cpp
+
+mpi_triangles_test:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o wavefront_triangles_test ./wavefront_mpi/_wavefront_triangles_test.cpp
+
+triangles:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o triangles  ./utils/triangles.cpp
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o triangles_collapsed  ./utils/triangles_collapsed.cpp
+
+squares:
+	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -o squares  ./utils/squares.cpp
 
 all: sequential fastflow mpi
 
-clean: 
-	-rm -fr *.o wavefront wavefront_ff wavefront_mpi
+clean_mpi:
+	rm wavefront_diagonal_sg_mpi wavefront_diagonal_allg_mpi wavefront_triangles_allg_mpi
+
+clean_fastflow:
+	rm wavefront_diagonal_ff wavefront_triangles_ff
+
+clean_sequential:
+	rm wavefront_diagonal wavefront_triangles wavefront_triangles_collapsed
+
+clean:
+	rm wavefront_diagonal_sg_mpi wavefront_diagonal_allg_mpi wavefront_triangles_allg_mpi
+	rm wavefront_diagonal_ff wavefront_triangles_ff
+	rm wavefront_diagonal wavefront_triangles wavefront_triangles_collapsed

@@ -1,0 +1,7 @@
+Name,Matrix size,Time,Value
+wavefront_diagonal,1024,174,339.143
+wavefront_diagonal,1448,459,480.36
+wavefront_diagonal,2048,1420,680.244
+wavefront_diagonal,2896,5299,962.795
+wavefront_diagonal,4096,13861,1362.68
+wavefront_diagonal,5793,39135,1928.23

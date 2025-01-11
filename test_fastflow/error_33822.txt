@@ -1,0 +1,10 @@
+wavefront_triangles_ff: ./ff/farm.hpp:2210: ff::ff_Farm<IN_t, OUT_t>::ff_Farm(std::vector<std::unique_ptr<ff::ff_node> >&&, ff::ff_node&, bool) [with IN_t = int; OUT_t = int]: Assertion `nw>0' failed.
+srun: error: node01: task 0: Aborted (core dumped)
+wavefront_triangles_ff: ./ff/farm.hpp:2210: ff::ff_Farm<IN_t, OUT_t>::ff_Farm(std::vector<std::unique_ptr<ff::ff_node> >&&, ff::ff_node&, bool) [with IN_t = int; OUT_t = int]: Assertion `nw>0' failed.
+srun: error: node01: task 0: Aborted (core dumped)
+wavefront_triangles_ff: ./ff/farm.hpp:2210: ff::ff_Farm<IN_t, OUT_t>::ff_Farm(std::vector<std::unique_ptr<ff::ff_node> >&&, ff::ff_node&, bool) [with IN_t = int; OUT_t = int]: Assertion `nw>0' failed.
+srun: error: node01: task 0: Aborted (core dumped)
+wavefront_triangles_ff: ./ff/farm.hpp:2210: ff::ff_Farm<IN_t, OUT_t>::ff_Farm(std::vector<std::unique_ptr<ff::ff_node> >&&, ff::ff_node&, bool) [with IN_t = int; OUT_t = int]: Assertion `nw>0' failed.
+srun: error: node01: task 0: Aborted (core dumped)
+wavefront_triangles_ff: ./ff/farm.hpp:2210: ff::ff_Farm<IN_t, OUT_t>::ff_Farm(std::vector<std::unique_ptr<ff::ff_node> >&&, ff::ff_node&, bool) [with IN_t = int; OUT_t = int]: Assertion `nw>0' failed.
+srun: error: node01: task 0: Aborted (core dumped)

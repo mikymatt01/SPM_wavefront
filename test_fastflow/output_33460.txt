@@ -1,0 +1,90 @@
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 1 
+time: 
+value: 
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 2 
+time: 1020
+value: 680.244
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 4 
+time: 504
+value: 680.244
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 8 
+time: 257
+value: 680.244
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 16 
+time: 137
+value: 680.244
+Running executable: wavefront_diagonal_ff n_mat: 2048 work: 32 
+time: 122
+value: 680.244
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 1 
+time: 
+value: 
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 2 
+time: 2973
+value: 962.795
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 4 
+time: 1519
+value: 962.795
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 8 
+time: 772
+value: 962.795
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 16 
+time: 371
+value: 962.795
+Running executable: wavefront_diagonal_ff n_mat: 2896 work: 32 
+time: 312
+value: 962.795
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 1 
+time: 
+value: 
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 2 
+time: 10196
+value: 1362.68
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 4 
+time: 5220
+value: 1362.68
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 8 
+time: 3116
+value: 1362.68
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 16 
+time: 1555
+value: 1362.68
+Running executable: wavefront_diagonal_ff n_mat: 4096 work: 32 
+time: 1263
+value: 1362.68
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 1 
+time: 
+value: 
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 2 
+time: 29205
+value: 1928.23
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 4 
+time: 15270
+value: 1928.23
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 8 
+time: 9591
+value: 1928.23
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 16 
+time: 5530
+value: 1928.23
+Running executable: wavefront_diagonal_ff n_mat: 5793 work: 32 
+time: 4885
+value: 1928.23
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 1 
+time: 
+value: 
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 2 
+time: 79613
+value: 2727.78
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 4 
+time: 41316
+value: 2727.78
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 8 
+time: 25616
+value: 2727.78
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 16 
+time: 17758
+value: 2727.78
+Running executable: wavefront_diagonal_ff n_mat: 8192 work: 32 
+time: 16111
+value: 2727.78
